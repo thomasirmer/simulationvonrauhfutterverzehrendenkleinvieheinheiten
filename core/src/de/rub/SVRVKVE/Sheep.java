@@ -10,6 +10,7 @@ public class Sheep extends Rectangle {
 	
 	public Sheep() {
 		// TODO Auto-generated constructor stub
+		System.out.println("OLOLOL");
 	}
 
 	public Sheep(Rectangle rect) {
