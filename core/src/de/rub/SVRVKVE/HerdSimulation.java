@@ -13,7 +13,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		img = new Texture("sheep3.png");
 	}
 
 	@Override
