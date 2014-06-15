@@ -8,29 +8,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-<<<<<<< HEAD
-=======
 import com.badlogic.gdx.math.GridPoint2;
->>>>>>> f1a994eca58a4e7cb8d60c43aba897601daecff4
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import de.rub.SVRVKVE.input.InputHandler;
 
 public class HerdSimulation extends ApplicationAdapter {
-<<<<<<< HEAD
 	
 	// window size
-=======
-
->>>>>>> f1a994eca58a4e7cb8d60c43aba897601daecff4
 	public static final int WINDOW_X = 1440;
 	public static final int WINDOW_Y = 900;
 
 	SpriteBatch batch;
-<<<<<<< HEAD
 	
-	// everthing about the sheeps
+	// everything about the sheeps
 	Array<Sheep> sheepHerd;
 	Sound sheepSound;
 	long lastUpdateTime = 0;
@@ -38,22 +30,15 @@ public class HerdSimulation extends ApplicationAdapter {
 	int sheepY 			= 50;
 	int numberOfSheeps 	= 256;
 	
-	// utilities
-	Random rand = new Random();
-	
-=======
-	InputHandler inputHandler = new InputHandler();
-
-	Array<Sheep> sheepHerd;
+	// everything about the dog
 	Dog dog;
-	long lastUpdateTime = 0;
-	int sheepX = 50;
-	int sheepY = 50;
-	int numberOfSheeps = 256;
 	GridPoint2 dogStartPosition = new GridPoint2(50, 50);
 	int dogHeight = 100, dogWidth = 35;
 
->>>>>>> f1a994eca58a4e7cb8d60c43aba897601daecff4
+	// utilities
+	Random rand = new Random();
+	InputHandler inputHandler = new InputHandler();
+	
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
@@ -67,7 +52,10 @@ public class HerdSimulation extends ApplicationAdapter {
 					.nextInt(WINDOW_Y), sheepX, sheepY));
 		}
 
+		// initialize dog
 		dog = new Dog(dogStartPosition,dogHeight, dogWidth);
+		
+		// utilities
 		inputHandler.addInputListener(dog.getInputListener());
 	}
 
@@ -108,6 +96,7 @@ public class HerdSimulation extends ApplicationAdapter {
 					sheepX, sheepY);
 		}
 
+		// draw dog
 		dog.render(batch);
 
 		batch.end();
