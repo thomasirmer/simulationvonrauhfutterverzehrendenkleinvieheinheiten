@@ -85,13 +85,46 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch.setProjectionMatrix(camera.combined);
 		camera.update();
 
-		// move sheeps
+		playSounds();
+		
+		moveSheeps();
+		
+		// begin drawing object to batch
+		batch.begin();
+		
+		// draw texture
+		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
+
+		drawSheeps();
+
+		// draw dog
+		dog.render(batch);
+
+		batch.end();
+	}
+
+	private void drawSheeps() {
+
+		Iterator<Sheep> sheeperator = sheepHerd.iterator();
+
+		while (sheeperator.hasNext()) {
+			Sheep currentSheep = sheeperator.next();
+			batch.draw(Sheep.image, currentSheep.x, currentSheep.y, sheepWidth,
+					sheepHeigth);
+		}
+	}
+
+	private void moveSheeps() {
+		
 		if (TimeUtils.millis() - lastUpdateTime > 25) {
+			
 			Iterator<Sheep> sheeperator = sheepHerd.iterator();
+			
 			while (sheeperator.hasNext()) {
 				Sheep currentSheep = sheeperator.next();				
 				currentSheep.x += rand.nextInt(3) - 1;;
 				currentSheep.y += rand.nextInt(3) - 1;;
+				
 				if (currentSheep.x >= WINDOW_X - sheepWidth)
 					currentSheep.x = WINDOW_X - sheepWidth;
 				if (currentSheep.x <= 0)
@@ -101,30 +134,14 @@ public class HerdSimulation extends ApplicationAdapter {
 				if (currentSheep.y <= 0)
 					currentSheep.y = 0;
 			}
-			if (rand.nextInt(80) == 1) {
-				sheepSound.play();
-			}
 			lastUpdateTime = TimeUtils.millis();
 		}
-
-		// begin drawing object to batch
-		batch.begin();
-		
-		// draw texture
-		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
-
-		// draw sheeps
-		Iterator<Sheep> sheeperator = sheepHerd.iterator();
-		while (sheeperator.hasNext()) {
-			Sheep currentSheep = sheeperator.next();
-			batch.draw(Sheep.image, currentSheep.x, currentSheep.y,
-					sheepWidth, sheepHeigth);
+	}
+	
+	private void playSounds() {
+		if (rand.nextInt(256) == 1) {
+			sheepSound.play();
 		}
-
-		// draw dog
-		dog.render(batch);
-
-		batch.end();
 	}
 	
 	@Override
