@@ -7,6 +7,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
@@ -17,10 +18,12 @@ import de.rub.SVRVKVE.input.InputHandler;
 public class HerdSimulation extends ApplicationAdapter {
 	
 	// window size
-	public static final int WINDOW_X = 1440;
-	public static final int WINDOW_Y = 900;
+	public static final int WINDOW_X = 1280;
+	public static final int WINDOW_Y = 720;
 
+	// graphics
 	SpriteBatch batch;
+	OrthographicCamera camera;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
@@ -43,6 +46,10 @@ public class HerdSimulation extends ApplicationAdapter {
 	public void create() {
 		batch = new SpriteBatch();
 		Gdx.input.setInputProcessor(inputHandler);
+		
+		// set up camera
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, WINDOW_X, WINDOW_Y);
 
 		// initialize sheep herd
 		sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3"));
@@ -85,6 +92,10 @@ public class HerdSimulation extends ApplicationAdapter {
 			}
 			lastUpdateTime = TimeUtils.millis();
 		}
+		
+		// camera update
+		batch.setProjectionMatrix(camera.combined);
+		camera.update();
 
 		batch.begin();
 
@@ -100,5 +111,11 @@ public class HerdSimulation extends ApplicationAdapter {
 		dog.render(batch);
 
 		batch.end();
+	}
+	
+	@Override
+	public void dispose() {
+		batch.dispose();
+		super.dispose();
 	}
 }
