@@ -105,7 +105,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		Iterator<Sheep> sheeperator = sheepHerd.iterator();
 		while (sheeperator.hasNext()) {
 			Sheep currentSheep = sheeperator.next();
-			batch.draw(currentSheep.image, currentSheep.x, currentSheep.y,
+			batch.draw(Sheep.image, currentSheep.x, currentSheep.y,
 					sheepX, sheepY);
 		}
 
