@@ -1,4 +1,4 @@
-package de.rub.SVRVKVE;
+package de.rub.SVRVKVE.animals;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

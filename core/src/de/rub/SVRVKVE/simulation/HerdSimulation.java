@@ -1,4 +1,4 @@
-package de.rub.SVRVKVE;
+package de.rub.SVRVKVE.simulation;
 
 import java.util.Iterator;
 import java.util.Random;
@@ -13,6 +13,8 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import de.rub.SVRVKVE.animals.Dog;
+import de.rub.SVRVKVE.animals.Sheep;
 import de.rub.SVRVKVE.input.InputHandler;
 
 public class HerdSimulation extends ApplicationAdapter {
@@ -31,7 +33,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	long lastUpdateTime = 0;
 	int sheepX 			= 50;
 	int sheepY 			= 50;
-	int numberOfSheeps 	= 256;
+	int numberOfSheeps 	= 64;
 	
 	// everything about the dog
 	Dog dog;
