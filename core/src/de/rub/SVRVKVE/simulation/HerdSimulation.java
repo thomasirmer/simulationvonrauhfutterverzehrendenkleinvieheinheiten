@@ -73,13 +73,17 @@ public class HerdSimulation extends ApplicationAdapter {
 		Gdx.gl.glClearColor(0.4f, 0.5f, 0.2f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+		// camera update
+		batch.setProjectionMatrix(camera.combined);
+		camera.update();
+
 		// move sheeps
 		if (TimeUtils.millis() - lastUpdateTime > 25) {
 			Iterator<Sheep> sheeperator = sheepHerd.iterator();
 			while (sheeperator.hasNext()) {
-				Sheep currentSheep = sheeperator.next();
-				currentSheep.x += rand.nextInt(3) - 1;
-				currentSheep.y += rand.nextInt(3) - 1;
+				Sheep currentSheep = sheeperator.next();				
+				currentSheep.x += rand.nextInt(3) - 1;;
+				currentSheep.y += rand.nextInt(3) - 1;;
 				if (currentSheep.x >= WINDOW_X - sheepX)
 					currentSheep.x = WINDOW_X - sheepX;
 				if (currentSheep.x <= 0)
@@ -94,10 +98,6 @@ public class HerdSimulation extends ApplicationAdapter {
 			}
 			lastUpdateTime = TimeUtils.millis();
 		}
-		
-		// camera update
-		batch.setProjectionMatrix(camera.combined);
-		camera.update();
 
 		batch.begin();
 
