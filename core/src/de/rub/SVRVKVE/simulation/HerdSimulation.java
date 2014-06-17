@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
@@ -26,13 +27,13 @@ public class HerdSimulation extends ApplicationAdapter {
 	// graphics
 	SpriteBatch batch;
 	OrthographicCamera camera;
+	Texture backgroundTexture;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
 	Sound sheepSound;
-	long lastUpdateTime = 0;
-	int sheepX 			= 50;
-	int sheepY 			= 50;
+	int sheepWidth 		= 50;
+	int sheepHeigth 	= 50;
 	int numberOfSheeps 	= 64;
 	
 	// everything about the dog
@@ -41,12 +42,17 @@ public class HerdSimulation extends ApplicationAdapter {
 	int dogHeight = 100, dogWidth = 35;
 
 	// utilities
-	Random rand = new Random();
 	InputHandler inputHandler = new InputHandler();
+	Random rand = new Random();
+	long lastUpdateTime = 0;
 	
 	@Override
 	public void create() {
+		// set up graphics
 		batch = new SpriteBatch();
+		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
+		
+		// set up input handler
 		Gdx.input.setInputProcessor(inputHandler);
 		
 		// set up camera
@@ -57,8 +63,10 @@ public class HerdSimulation extends ApplicationAdapter {
 		sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3"));
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
-			sheepHerd.add(new Sheep(rand.nextInt(WINDOW_X), rand
-					.nextInt(WINDOW_Y), sheepX, sheepY));
+			sheepHerd.add(new Sheep(rand.nextInt(WINDOW_X),
+						  rand.nextInt(WINDOW_Y),
+						  sheepWidth,
+						  sheepHeigth));
 		}
 
 		// initialize dog
@@ -70,9 +78,9 @@ public class HerdSimulation extends ApplicationAdapter {
 
 	@Override
 	public void render() {
-		Gdx.gl.glClearColor(0.4f, 0.5f, 0.2f, 1);
+		// clear screen
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+		
 		// camera update
 		batch.setProjectionMatrix(camera.combined);
 		camera.update();
@@ -84,12 +92,12 @@ public class HerdSimulation extends ApplicationAdapter {
 				Sheep currentSheep = sheeperator.next();				
 				currentSheep.x += rand.nextInt(3) - 1;;
 				currentSheep.y += rand.nextInt(3) - 1;;
-				if (currentSheep.x >= WINDOW_X - sheepX)
-					currentSheep.x = WINDOW_X - sheepX;
+				if (currentSheep.x >= WINDOW_X - sheepWidth)
+					currentSheep.x = WINDOW_X - sheepWidth;
 				if (currentSheep.x <= 0)
 					currentSheep.x = 0;
-				if (currentSheep.y >= WINDOW_Y - sheepY)
-					currentSheep.y = WINDOW_Y - sheepY;
+				if (currentSheep.y >= WINDOW_Y - sheepHeigth)
+					currentSheep.y = WINDOW_Y - sheepHeigth;
 				if (currentSheep.y <= 0)
 					currentSheep.y = 0;
 			}
@@ -99,14 +107,18 @@ public class HerdSimulation extends ApplicationAdapter {
 			lastUpdateTime = TimeUtils.millis();
 		}
 
+		// begin drawing object to batch
 		batch.begin();
+		
+		// draw texture
+		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
 
 		// draw sheeps
 		Iterator<Sheep> sheeperator = sheepHerd.iterator();
 		while (sheeperator.hasNext()) {
 			Sheep currentSheep = sheeperator.next();
 			batch.draw(Sheep.image, currentSheep.x, currentSheep.y,
-					sheepX, sheepY);
+					sheepWidth, sheepHeigth);
 		}
 
 		// draw dog

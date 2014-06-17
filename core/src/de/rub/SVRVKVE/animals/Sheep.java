@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Sheep extends Rectangle {
 	
-	public static final Texture image = new Texture(Gdx.files.internal("sheep3.png"));
+	public static final Texture image = new Texture(Gdx.files.internal("sheepImage.png"));
 	private GridPoint2 destination;
 	private GridPoint2 position;
 	
