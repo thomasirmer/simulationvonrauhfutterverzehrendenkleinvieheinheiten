@@ -17,22 +17,13 @@ import de.rub.fuzzy.FuzzyInputException;
 import de.rub.fuzzy.FuzzyNoThenPartException;
 
 public class Sheep extends Rectangle {
-<<<<<<< Updated upstream:core/src/de/rub/SVRVKVE/Sheep.java
-	
-<<<<<<< HEAD:core/src/de/rub/SVRVKVE/Sheep.java
-	public static final Texture image = new Texture(Gdx.files.internal("sheep3.png"));
-=======
 
 	public static final Texture image = new Texture(
 			Gdx.files.internal("sheepImage.png"));
->>>>>>> Stashed changes:core/src/de/rub/SVRVKVE/animals/Sheep.java
-=======
-	public static final Texture image = new Texture(Gdx.files.internal("sheepImage.png"));
->>>>>>> origin/master:core/src/de/rub/SVRVKVE/animals/Sheep.java
 	private GridPoint2 destination;
 	private Array<Sheep> herd;
 	private BitmapFont font;
-	
+
 	public Sheep(Array<Sheep> herd, float x, float y, float width, float height) {
 		super(x, y, width, height);
 		this.font = new BitmapFont();
@@ -58,37 +49,38 @@ public class Sheep extends Rectangle {
 	}
 
 	private double measureDistance(Sheep target) {
-		return Math.sqrt(Math.pow(
-				Math.abs(target.x - this.x), 2)
+		return Math.sqrt(Math.pow(Math.abs(target.x - this.x), 2)
 				+ Math.pow(Math.abs(target.x - this.x), 2));
 	}
-	
+
 	private Vector2 directionToSheep(Sheep target) {
-		return new Vector2((target.x-this.x), (target.y-this.y));
+		return new Vector2((target.x - this.x), (target.y - this.y));
 	}
-	
+
 	private Array<Sheep> sheepInNearDistance() {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if(measureDistance(neighbour)<25.0)
+			if (measureDistance(neighbour) < 25.0)
 				result.add(neighbour);
 		}
 		return result;
 	}
-	
+
 	private Array<Sheep> sheepInMediumDistance() {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if(measureDistance(neighbour)<75.0 && measureDistance(neighbour)>=25)
+			if (measureDistance(neighbour) < 75.0
+					&& measureDistance(neighbour) >= 25)
 				result.add(neighbour);
 		}
 		return result;
 	}
-	
+
 	private Array<Sheep> sheepInFarDistance() {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if(measureDistance(neighbour)<150.0 && measureDistance(neighbour)>=75)
+			if (measureDistance(neighbour) < 150.0
+					&& measureDistance(neighbour) >= 75)
 				result.add(neighbour);
 		}
 		return result;
@@ -101,7 +93,7 @@ public class Sheep extends Rectangle {
 		Catalog.evalAllRules();
 		return Catalog.get("Excitation");
 	}
-	
+
 	public BitmapFont getFont() {
 		return this.font;
 	}
