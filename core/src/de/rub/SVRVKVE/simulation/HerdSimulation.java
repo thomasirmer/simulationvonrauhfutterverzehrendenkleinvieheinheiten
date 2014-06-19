@@ -1,17 +1,26 @@
 package de.rub.SVRVKVE.simulation;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+>>>>>>> origin/master
 import java.util.Iterator;
 import java.util.Random;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+<<<<<<< HEAD
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+=======
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+>>>>>>> origin/master
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
@@ -20,9 +29,12 @@ import com.badlogic.gdx.utils.TimeUtils;
 import de.rub.SVRVKVE.animals.Dog;
 import de.rub.SVRVKVE.animals.Sheep;
 import de.rub.SVRVKVE.input.InputHandler;
+<<<<<<< HEAD
 import de.rub.fuzzy.Catalog;
 import de.rub.fuzzy.FuzzyInputException;
 import de.rub.fuzzy.FuzzyNoThenPartException;
+=======
+>>>>>>> origin/master
 
 public class HerdSimulation extends ApplicationAdapter {
 	
@@ -34,7 +46,10 @@ public class HerdSimulation extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Texture backgroundTexture;
+<<<<<<< HEAD
 	BitmapFont font;
+=======
+>>>>>>> origin/master
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
@@ -57,9 +72,12 @@ public class HerdSimulation extends ApplicationAdapter {
 	public void create() {
 		// set up graphics
 		batch = new SpriteBatch();
+<<<<<<< HEAD
 		font = new BitmapFont();
         font.setColor(Color.RED);
 
+=======
+>>>>>>> origin/master
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
 		
 		// set up input handler
@@ -73,7 +91,11 @@ public class HerdSimulation extends ApplicationAdapter {
 		sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3"));
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
+<<<<<<< HEAD
 			sheepHerd.add(new Sheep(sheepHerd, rand.nextInt(WINDOW_X),
+=======
+			sheepHerd.add(new Sheep(rand.nextInt(WINDOW_X),
+>>>>>>> origin/master
 						  rand.nextInt(WINDOW_Y),
 						  sheepWidth,
 						  sheepHeigth));
@@ -84,9 +106,12 @@ public class HerdSimulation extends ApplicationAdapter {
 		
 		// utilities
 		inputHandler.addInputListener(dog.getInputListener());
+<<<<<<< HEAD
 		
 		// create Catalog
 		initFuzzy();
+=======
+>>>>>>> origin/master
 	}
 
 	@Override
@@ -109,6 +134,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
 
 		drawSheeps();
+<<<<<<< HEAD
 		
 		// display sheep's current mood
 		for (int i=0; i<sheepHerd.size; i++) {
@@ -116,6 +142,8 @@ public class HerdSimulation extends ApplicationAdapter {
 //			s.getFont().draw(batch, String.valueOf(s.evaluateSatisfaction()), s.x, s.y);
 			System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
+=======
+>>>>>>> origin/master
 
 		// draw dog
 		dog.render(batch);
@@ -169,6 +197,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch.dispose();
 		super.dispose();
 	}
+<<<<<<< HEAD
 	
 	private void initFuzzy() {
 		String workingDir = System.getProperty("user.dir");
@@ -183,4 +212,6 @@ public class HerdSimulation extends ApplicationAdapter {
             e.printStackTrace();
         }
 	}
+=======
+>>>>>>> origin/master
 }

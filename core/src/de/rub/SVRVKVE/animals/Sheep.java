@@ -1,4 +1,4 @@
-package de.rub.SVRVKVE;
+package de.rub.SVRVKVE.animals;
 
 import java.io.IOException;
 
@@ -19,12 +19,16 @@ import de.rub.fuzzy.FuzzyNoThenPartException;
 public class Sheep extends Rectangle {
 <<<<<<< Updated upstream:core/src/de/rub/SVRVKVE/Sheep.java
 	
+<<<<<<< HEAD:core/src/de/rub/SVRVKVE/Sheep.java
 	public static final Texture image = new Texture(Gdx.files.internal("sheep3.png"));
 =======
 
 	public static final Texture image = new Texture(
 			Gdx.files.internal("sheepImage.png"));
 >>>>>>> Stashed changes:core/src/de/rub/SVRVKVE/animals/Sheep.java
+=======
+	public static final Texture image = new Texture(Gdx.files.internal("sheepImage.png"));
+>>>>>>> origin/master:core/src/de/rub/SVRVKVE/animals/Sheep.java
 	private GridPoint2 destination;
 	private Array<Sheep> herd;
 	private BitmapFont font;
