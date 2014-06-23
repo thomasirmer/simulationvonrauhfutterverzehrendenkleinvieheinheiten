@@ -24,9 +24,10 @@ public class Sheep extends Sprite {
 	private GridPoint2 destination;
 	private Array<Sheep> herd;
 	private BitmapFont font;
+	private Random rand = new Random();
 	
 	public static final int SIGHT_DISTANCE = 50;
-	public static final int MOVE_SPEED = 50;
+	public static final int MOVE_SPEED = 5;
 
 	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
 //		super(x, y, width, height);
@@ -43,7 +44,7 @@ public class Sheep extends Sprite {
 	// destination attribute
 	public void move() {
 		
-		float distance = MOVE_SPEED * Gdx.graphics.getDeltaTime();
+		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
 		
 		setRotation(getDirection().angle());
 		float directionX = (float) Math.cos(Math.toRadians(getRotation()));
@@ -133,7 +134,7 @@ public class Sheep extends Sprite {
 		draw(batch);
 	}
 
-	public double evaluateExcitation() {
+	public double getMovementSpeed() {
 		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
 		double excitation = 0.0;
@@ -143,7 +144,8 @@ public class Sheep extends Sprite {
 		
 		Catalog.set("Excitation", excitation);
 		Catalog.evalAllRules();
-		return Catalog.get("Movement");
+		double movement = Catalog.get("Movement");
+		return movement;
 		
 //		return excitation / neighbours.size;
 		

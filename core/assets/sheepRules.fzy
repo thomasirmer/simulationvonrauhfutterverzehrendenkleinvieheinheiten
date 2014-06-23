@@ -4,13 +4,13 @@
 -	high	15,	25,	35,	45
 
 +	Movement
--	slow	-1,	0,	1,	2
--	mid		0,	2,	4,	6
--	fast	5,	10,	15,	20
+-	slow	-1,	0,	4,	5
+-	mid		3,	5,	9,	11
+-	fast	8,	10,	15,	17
 
 if Excitation=low 	then Movement=slow
 if Excitation=mid 	then Movement=mid
-if Excitation=fast 	then Movement=fast 
+if Excitation=high 	then Movement=fast 
 
 #+ close
 #-	desired	-1,	0,	2,	3

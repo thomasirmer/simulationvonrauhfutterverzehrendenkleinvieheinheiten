@@ -2,7 +2,6 @@ package de.rub.SVRVKVE.simulation;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Iterator;
 import java.util.Random;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -129,7 +128,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		DecimalFormat df = new DecimalFormat("##.###");
 		for (int i=0; i<sheepHerd.size; i++) {
 			Sheep s = sheepHerd.get(i);
-			String ext = df.format(s.evaluateExcitation());
+			String ext = df.format(s.getMovementSpeed());
 			s.getFont().draw(batch, ext, s.getX(), s.getY());
 			//System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
