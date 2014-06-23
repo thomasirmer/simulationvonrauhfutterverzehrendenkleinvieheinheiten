@@ -58,22 +58,23 @@ public class HerdSimulation extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, WINDOW_X, WINDOW_Y);
 
+		// initialize dog
+		dog = new Dog(dogStartPosition,dogHeight, dogWidth);
+		
 		// initialize sheep herd
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
-			sheepHerd.add(new Sheep(sheepHerd, rand.nextInt(WINDOW_X),
+			sheepHerd.add(new Sheep(sheepHerd, dog,
+						  rand.nextInt(WINDOW_X),
 						  rand.nextInt(WINDOW_Y),
 						  sheepWidth,
 						  sheepHeigth));
 		}
-
-		// initialize dog
-		dog = new Dog(dogStartPosition,dogHeight, dogWidth);
 		
 		// utilities
 		inputHandler.addInputListener(dog.getInputListener());
 		
-		// create Catalog
+		// create catalog
 		initFuzzy();
 	}
 

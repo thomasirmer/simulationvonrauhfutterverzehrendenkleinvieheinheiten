@@ -5,7 +5,6 @@ import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -24,6 +23,7 @@ public class Sheep extends Sprite {
 	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepWithEyes.png"));
 	private static final Sound sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3")); 
 	private Array<Sheep> herd;
+	private Dog dog;
 	private BitmapFont font;
 	private Random rand = new Random();
 	
@@ -31,9 +31,9 @@ public class Sheep extends Sprite {
 	Texture pixmapCircleTexture;
 	
 	public static final int SIGHT_DISTANCE 	= 50;
-	public static final int MOVE_SPEED 		= 100;
+	public static final int MOVE_SPEED 		= 20;
 
-	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
+	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);
 		this.setPosition(x, y);
 		this.setSize(width, height);
@@ -41,6 +41,7 @@ public class Sheep extends Sprite {
 		this.font = new BitmapFont();
 		this.font.setColor(0, 0, 0, 0.5f);
 		this.herd = herd;
+		this.dog = dog;
 		
         pixmapCircle = new Pixmap(Sheep.SIGHT_DISTANCE * 2, Sheep.SIGHT_DISTANCE * 2, Format.RGBA4444);
         Pixmap.setBlending(Blending.None);
@@ -60,6 +61,9 @@ public class Sheep extends Sprite {
 		//playSound();
 	}
 
+	/**
+	 * Calculates sheeps movement and sets its new location.
+	 */
 	private void move() {
 		
 		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
@@ -82,6 +86,10 @@ public class Sheep extends Sprite {
 			this.setY(0);
 	}
 	
+	/**
+	 * Draws information about the sheeps mood and its supervised area
+	 * @param batch
+	 */
 	private void drawProperties(SpriteBatch batch) {
 		
 		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
@@ -94,36 +102,64 @@ public class Sheep extends Sprite {
 		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
 	}
 	
+	/**
+	 * Selects all sheeps in "sight" distance
+	 * @param sight the radius of the supervised area
+	 * @return the sheeps within sight
+	 */
 	private Array<Sheep> sheepsAround(int sight) {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if (distanceTo(neighbour) < sight
-					&& distanceTo(neighbour) > 0)
+			if (distanceTo(neighbour) < sight && distanceTo(neighbour) > 0)
 				result.add(neighbour);
 		}
 		return result;
 	}
 	
+	/**
+	 * Calculates the direction of the sheeps movement based on the surrounding sheeps and the dog.
+	 * @return the direction
+	 */
 	private Vector2 getDirection() {
-		
+		// TODO: The calculation of the direction seems not to work due to crappy vector-calculation
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
 		
 		Vector2 direction = new Vector2(0,0);
+		
+		// get direction based on other sheeps
 		for (Sheep neighbour : neighbours) {
 			direction.add(directionTo(neighbour));
 		}
+		
+		// get direction based on doggy doggy dog
+		direction.sub(directionTo(dog));
+		
 		return direction.nor();
 	}
 	
-	private double distanceTo(Sheep target) {
+	/**
+	 * Calculates the distance to the target.
+	 * @param target
+	 * @return distance
+	 */
+	private double distanceTo(Sprite target) {
 		return Math.sqrt(Math.pow(Math.abs(target.getX() - this.getX()), 2)
 				+ Math.pow(Math.abs(target.getY() - this.getY()), 2));
 	}
 
-	private Vector2 directionTo(Sheep target) {
+	/**
+	 * Calculates the direction to the target.
+	 * @param target
+	 * @return direction
+	 */
+	private Vector2 directionTo(Sprite target) {
 		return new Vector2((target.getX() - this.getX()), (target.getY() - this.getY()));
 	}
 
+	/**
+	 * Calculates the movement speed based on the FUZZY LOGIC
+	 * @return movement speed
+	 */
 	private double getMovementSpeed() {
 		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
@@ -143,6 +179,9 @@ public class Sheep extends Sprite {
 		return movement;
 	}
 	
+	/**
+	 * Määäääh!
+	 */
 	private void playSound() {
 		if (rand.nextInt(16000) == 1) {
 			sheepSound.play();
