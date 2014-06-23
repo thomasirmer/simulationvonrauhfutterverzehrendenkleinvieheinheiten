@@ -1,31 +1,32 @@
 package de.rub.SVRVKVE.animals;
 
-import java.io.IOException;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import de.rub.fuzzy.Catalog;
-import de.rub.fuzzy.FuzzyInputException;
-import de.rub.fuzzy.FuzzyNoThenPartException;
 
-public class Sheep extends Rectangle {
+public class Sheep extends Sprite {
 
 	public static final Texture image = new Texture(
 			Gdx.files.internal("sheepImage.png"));
 	private GridPoint2 destination;
 	private Array<Sheep> herd;
 	private BitmapFont font;
+	
+	public static final int sigthDistance = 50;
 
-	public Sheep(Array<Sheep> herd, float x, float y, float width, float height) {
-		super(x, y, width, height);
+	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
+//		super(x, y, width, height);
+		super(image);
+		this.setPosition(x, y);
+		this.setSize(width, height);
+		this.setOriginCenter();
 		this.font = new BitmapFont();
 		this.font.setColor(Color.RED);
 		this.herd = herd;
@@ -38,26 +39,30 @@ public class Sheep extends Rectangle {
 	}
 
 	// Helper method to evaluate the next destination Point
-	private GridPoint2 evaluateMovement() {
-		return null;
+	public Vector2 evaluateMovement() {
+		
+		Array<Sheep> neighbours = sheepsAround();
+		
+		Vector2 direction = new Vector2(0,0);
+		for (Sheep neighbour : neighbours) {
+			direction.add(directionToSheep(neighbour));
+		}
+		return direction.nor();
 	}
 
 	public Vector2 getHeading() {
 		// Return the directional vector between current position and
 		// destination
-		
-		
-		
 		return null;
 	}
 
 	private double measureDistance(Sheep target) {
-		return Math.sqrt(Math.pow(Math.abs(target.x - this.x), 2)
-				+ Math.pow(Math.abs(target.x - this.x), 2));
+		return Math.sqrt(Math.pow(Math.abs(target.getX() - this.getX()), 2)
+				+ Math.pow(Math.abs(target.getY() - this.getY()), 2));
 	}
 
 	private Vector2 directionToSheep(Sheep target) {
-		return new Vector2((target.x - this.x), (target.y - this.y));
+		return new Vector2((target.getX() - this.getX()), (target.getY() - this.getY()));
 	}
 	
 	private Array<Sheep> sheepInNearDistance() {
@@ -92,7 +97,7 @@ public class Sheep extends Rectangle {
 	private Array<Sheep> sheepsAround() {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < 50.0
+			if (measureDistance(neighbour) < sigthDistance
 					&& measureDistance(neighbour) >= 0)
 				result.add(neighbour);
 		}

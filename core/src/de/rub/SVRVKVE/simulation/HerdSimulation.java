@@ -42,7 +42,8 @@ public class HerdSimulation extends ApplicationAdapter {
 	OrthographicCamera camera;
 	Texture backgroundTexture;
 	BitmapFont font;
-	Pixmap pixmap;
+	Pixmap pixmapCircle;
+	Texture pixmapCircleTexture;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
@@ -67,10 +68,12 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
         font.setColor(Color.RED);
-        pixmap = new Pixmap(50, 50, Format.RGB565);
+        pixmapCircle = new Pixmap(Sheep.sigthDistance * 2, Sheep.sigthDistance * 2, Format.RGBA4444);
         Pixmap.setBlending(Blending.None);
-        pixmap.setColor(1, 0, 0, 0.5f);
-        pixmap.drawCircle(0, 0, 50);
+        pixmapCircle.setColor(1, 0, 0, 0.5f);
+        pixmapCircle.drawCircle(Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance);
+        pixmapCircle.drawLine(Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance * 2);
+        pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
 
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
 		
@@ -127,7 +130,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		for (int i=0; i<sheepHerd.size; i++) {
 			Sheep s = sheepHerd.get(i);
 			String ext = df.format(s.evaluateExcitation());
-			s.getFont().draw(batch, ext, s.x, s.y);
+			s.getFont().draw(batch, ext, s.getX(), s.getY());
 			//System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
 
@@ -139,14 +142,16 @@ public class HerdSimulation extends ApplicationAdapter {
 
 	private void drawSheeps() {
 
-		Iterator<Sheep> sheeperator = sheepHerd.iterator();
-		
-		while (sheeperator.hasNext()) {
-			Sheep currentSheep = sheeperator.next();
+		for (int i=0; i<sheepHerd.size; i++) {
+			Sheep currentSheep = sheepHerd.get(i);
+			currentSheep.rotate(currentSheep.evaluateMovement().angle());
 			
-			batch.draw(Sheep.image, currentSheep.x, currentSheep.y, sheepWidth,
-					sheepHeigth);
-			batch.draw(new Texture(pixmap, Format.RGB565, false), currentSheep.x, currentSheep.y);
+			currentSheep.draw(batch);
+			
+//			batch.draw(currentSheep, currentSheep.getX(), currentSheep.getY(), sheepWidth,
+//					sheepHeigth);
+			batch.draw(pixmapCircleTexture, currentSheep.getX() - Sheep.sigthDistance, currentSheep.getY() - Sheep.sigthDistance);
+		
 		}
 	}
 
@@ -158,17 +163,17 @@ public class HerdSimulation extends ApplicationAdapter {
 			
 			while (sheeperator.hasNext()) {
 				Sheep currentSheep = sheeperator.next();				
-				currentSheep.x += rand.nextInt(3) - 1;;
-				currentSheep.y += rand.nextInt(3) - 1;;
+				currentSheep.setX(currentSheep.getX() + rand.nextInt(3) - 1);
+				currentSheep.setY(currentSheep.getY() + rand.nextInt(3) - 1);
 				
-				if (currentSheep.x >= WINDOW_X - sheepWidth)
-					currentSheep.x = WINDOW_X - sheepWidth;
-				if (currentSheep.x <= 0)
-					currentSheep.x = 0;
-				if (currentSheep.y >= WINDOW_Y - sheepHeigth)
-					currentSheep.y = WINDOW_Y - sheepHeigth;
-				if (currentSheep.y <= 0)
-					currentSheep.y = 0;
+				if (currentSheep.getX() >= WINDOW_X - sheepWidth)
+					currentSheep.setX(WINDOW_X - sheepWidth);
+				if (currentSheep.getX() <= 0)
+					currentSheep.setX(0);
+				if (currentSheep.getY() >= WINDOW_Y - sheepHeigth)
+					currentSheep.setY(WINDOW_Y - sheepHeigth);
+				if (currentSheep.getY() <= 0)
+					currentSheep.setY(0);
 			}
 			lastUpdateTime = TimeUtils.millis();
 		}
