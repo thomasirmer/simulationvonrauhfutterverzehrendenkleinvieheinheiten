@@ -1,6 +1,7 @@
 package de.rub.SVRVKVE.simulation;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -10,12 +11,15 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Blending;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -38,6 +42,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	OrthographicCamera camera;
 	Texture backgroundTexture;
 	BitmapFont font;
+	Pixmap pixmap;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
@@ -62,6 +67,10 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
         font.setColor(Color.RED);
+        pixmap = new Pixmap(50, 50, Format.RGB565);
+        Pixmap.setBlending(Blending.None);
+        pixmap.setColor(1, 0, 0, 0.5f);
+        pixmap.drawCircle(0, 0, 50);
 
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
 		
@@ -98,8 +107,8 @@ public class HerdSimulation extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		// camera update
-		batch.setProjectionMatrix(camera.combined);
 		camera.update();
+		batch.setProjectionMatrix(camera.combined);
 
 		playSounds();
 		
@@ -114,10 +123,12 @@ public class HerdSimulation extends ApplicationAdapter {
 		drawSheeps();
 		
 		// display sheep's current mood
+		DecimalFormat df = new DecimalFormat("##.###");
 		for (int i=0; i<sheepHerd.size; i++) {
 			Sheep s = sheepHerd.get(i);
-//			s.getFont().draw(batch, String.valueOf(s.evaluateSatisfaction()), s.x, s.y);
-			System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
+			String ext = df.format(s.evaluateExcitation());
+			s.getFont().draw(batch, ext, s.x, s.y);
+			//System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
 
 		// draw dog
@@ -129,11 +140,13 @@ public class HerdSimulation extends ApplicationAdapter {
 	private void drawSheeps() {
 
 		Iterator<Sheep> sheeperator = sheepHerd.iterator();
-
+		
 		while (sheeperator.hasNext()) {
 			Sheep currentSheep = sheeperator.next();
+			
 			batch.draw(Sheep.image, currentSheep.x, currentSheep.y, sheepWidth,
 					sheepHeigth);
+			batch.draw(new Texture(pixmap, Format.RGB565, false), currentSheep.x, currentSheep.y);
 		}
 	}
 

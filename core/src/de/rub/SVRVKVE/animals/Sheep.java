@@ -45,6 +45,9 @@ public class Sheep extends Rectangle {
 	public Vector2 getHeading() {
 		// Return the directional vector between current position and
 		// destination
+		
+		
+		
 		return null;
 	}
 
@@ -56,7 +59,7 @@ public class Sheep extends Rectangle {
 	private Vector2 directionToSheep(Sheep target) {
 		return new Vector2((target.x - this.x), (target.y - this.y));
 	}
-
+	
 	private Array<Sheep> sheepInNearDistance() {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
@@ -85,13 +88,36 @@ public class Sheep extends Rectangle {
 		}
 		return result;
 	}
+	
+	private Array<Sheep> sheepsAround() {
+		Array<Sheep> result = new Array<Sheep>();
+		for (Sheep neighbour : this.herd) {
+			if (measureDistance(neighbour) < 50.0
+					&& measureDistance(neighbour) >= 0)
+				result.add(neighbour);
+		}
+		return result;
+	}
 
 	public double evaluateExcitation() {
-		Catalog.set("close", sheepInNearDistance().size);
-		Catalog.set("inreach", sheepInMediumDistance().size);
-		Catalog.set("distant", sheepInFarDistance().size);
+		
+		Array<Sheep> neighbours = sheepsAround();
+		double excitation = 0.0;
+		for (Sheep neighbour : neighbours) {
+			excitation += measureDistance(neighbour) / neighbours.size;
+		}
+		
+		Catalog.set("Excitation", excitation);
 		Catalog.evalAllRules();
-		return Catalog.get("Excitation");
+		return Catalog.get("Movement");
+		
+//		return excitation / neighbours.size;
+		
+//		Catalog.set("close", sheepInNearDistance().size);
+//		Catalog.set("inreach", sheepInMediumDistance().size);
+//		Catalog.set("distant", sheepInFarDistance().size);
+//		Catalog.evalAllRules();
+//		return Catalog.get("Excitation");
 	}
 
 	public BitmapFont getFont() {
