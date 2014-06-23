@@ -4,26 +4,10 @@
 -	high	15,	25,	35,	45
 
 +	Movement
--	slow	-1,	0,	4,	5
+-	slow	0,	1,	4,	5
 -	mid		3,	5,	9,	11
 -	fast	8,	10,	15,	17
 
 if Excitation=low 	then Movement=slow
 if Excitation=mid 	then Movement=mid
 if Excitation=high 	then Movement=fast 
-
-#+ close
-#-	desired	-1,	0,	2,	3
-#+ inreach
-#-	desired	3,	4,	5,	6
-#+ distant
-#-	desired	6,	9,	12,	15
-
-#+ Excitation
-#-	low	-2,	0,	2,	4
-#-	mid	3,	5,	8,	10
-#-	RUN	8,	12,	15,	20
-
-#if (close=desired and inreach=desired) then Excitation=low
-#if not (close=desired or inreach=desired) then Excitation=mid
-#if not (distant=desired or inreach=desired) then Excitation=RUN

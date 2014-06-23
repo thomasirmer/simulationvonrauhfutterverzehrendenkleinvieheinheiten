@@ -30,8 +30,8 @@ public class Sheep extends Sprite {
 	Pixmap pixmapCircle;
 	Texture pixmapCircleTexture;
 	
-	public static final int SIGHT_DISTANCE = 50;
-	public static final int MOVE_SPEED = 1;
+	public static final int SIGHT_DISTANCE 	= 50;
+	public static final int MOVE_SPEED 		= 100;
 
 	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
 		super(image);
@@ -39,7 +39,7 @@ public class Sheep extends Sprite {
 		this.setSize(width, height);
 		this.setOriginCenter();
 		this.font = new BitmapFont();
-		this.font.setColor(Color.RED);
+		this.font.setColor(0, 0, 0, 0.5f);
 		this.herd = herd;
 		
         pixmapCircle = new Pixmap(Sheep.SIGHT_DISTANCE * 2, Sheep.SIGHT_DISTANCE * 2, Format.RGBA4444);
@@ -63,6 +63,7 @@ public class Sheep extends Sprite {
 	private void move() {
 		
 		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
+		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
 		
 		setRotation(getDirection().angle());
 		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
@@ -90,13 +91,14 @@ public class Sheep extends Sprite {
 		String angle = df.format(getRotation());
 		font.draw(batch, "spd " + speed, getX(), getY());
 		font.draw(batch, "rot " + angle, getX(), getY() - 15);
+		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
 	}
 	
 	private Array<Sheep> sheepsAround(int sight) {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
 			if (distanceTo(neighbour) < sight
-					&& distanceTo(neighbour) >= 0)
+					&& distanceTo(neighbour) > 0)
 				result.add(neighbour);
 		}
 		return result;
@@ -126,8 +128,13 @@ public class Sheep extends Sprite {
 		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
 		double excitation = 0.0;
+		
 		for (Sheep neighbour : neighbours) {
 			excitation += distanceTo(neighbour) / neighbours.size;
+		}
+		
+		if (neighbours.size == 0) {
+			excitation = 35;
 		}
 		
 		Catalog.set("Excitation", excitation);
