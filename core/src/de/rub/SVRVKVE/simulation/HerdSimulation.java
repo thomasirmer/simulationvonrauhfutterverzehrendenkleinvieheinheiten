@@ -1,20 +1,13 @@
 package de.rub.SVRVKVE.simulation;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Random;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Blending;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
@@ -36,13 +29,9 @@ public class HerdSimulation extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Texture backgroundTexture;
-	BitmapFont font;
-	Pixmap pixmapCircle;
-	Texture pixmapCircleTexture;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
-	Sound sheepSound;
 	int sheepWidth 		= 50;
 	int sheepHeigth 	= 50;
 	int numberOfSheeps 	= 64;
@@ -55,20 +44,11 @@ public class HerdSimulation extends ApplicationAdapter {
 	// utilities
 	InputHandler inputHandler = new InputHandler();
 	Random rand = new Random();
-	long lastUpdateTime = 0;
 	
 	@Override
 	public void create() {
 		// set up graphics
 		batch = new SpriteBatch();
-		font = new BitmapFont();
-        font.setColor(Color.RED);
-        pixmapCircle = new Pixmap(Sheep.SIGHT_DISTANCE * 2, Sheep.SIGHT_DISTANCE * 2, Format.RGBA4444);
-        Pixmap.setBlending(Blending.None);
-        pixmapCircle.setColor(1, 0, 0, 0.5f);
-        pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
-        pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
-
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
 		
 		// set up input handler
@@ -79,7 +59,6 @@ public class HerdSimulation extends ApplicationAdapter {
 		camera.setToOrtho(false, WINDOW_X, WINDOW_Y);
 
 		// initialize sheep herd
-		sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3"));
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
 			sheepHerd.add(new Sheep(sheepHerd, rand.nextInt(WINDOW_X),
@@ -107,8 +86,6 @@ public class HerdSimulation extends ApplicationAdapter {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 
-		playSounds();
-		
 		// begin drawing object to batch
 		batch.begin();
 		
@@ -121,28 +98,11 @@ public class HerdSimulation extends ApplicationAdapter {
 		// draw sheeps
 		for (int i=0; i<sheepHerd.size; i++) {
 			sheepHerd.get(i).render(batch);
-			batch.draw(pixmapCircleTexture, sheepHerd.get(i).getX() - Sheep.SIGHT_DISTANCE/2, sheepHerd.get(i).getY() - Sheep.SIGHT_DISTANCE/2);
-		}
-		
-		// display sheep's current mood
-		DecimalFormat df = new DecimalFormat("##.###");
-		for (int i=0; i<sheepHerd.size; i++) {
-			Sheep s = sheepHerd.get(i);
-			String ext = df.format(s.getMovementSpeed());
-			s.getFont().draw(batch, ext, s.getX(), s.getY());
-			//System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
 
 		batch.end();
 	}
-
-	private void playSounds() {
-		if (rand.nextInt(256) == 1) {
-			sheepSound.play();
-		}
-	}
 	
-	@Override
 	public void dispose() {
 		batch.dispose();
 		super.dispose();

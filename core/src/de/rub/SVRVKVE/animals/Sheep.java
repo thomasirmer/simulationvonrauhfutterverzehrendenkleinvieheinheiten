@@ -1,36 +1,39 @@
 package de.rub.SVRVKVE.animals;
 
-import java.util.Iterator;
+import java.text.DecimalFormat;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Blending;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 
 import de.rub.SVRVKVE.simulation.HerdSimulation;
 import de.rub.fuzzy.Catalog;
 
 public class Sheep extends Sprite {
 
-	public static final Texture image = new Texture(
-			Gdx.files.internal("sheepImage.png"));
-	private GridPoint2 destination;
+	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepImage.png"));
+	private static final Sound sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3")); 
 	private Array<Sheep> herd;
 	private BitmapFont font;
 	private Random rand = new Random();
 	
+	Pixmap pixmapCircle;
+	Texture pixmapCircleTexture;
+	
 	public static final int SIGHT_DISTANCE = 50;
-	public static final int MOVE_SPEED = 5;
+	public static final int MOVE_SPEED = 1;
 
 	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
-//		super(x, y, width, height);
 		super(image);
 		this.setPosition(x, y);
 		this.setSize(width, height);
@@ -38,11 +41,26 @@ public class Sheep extends Sprite {
 		this.font = new BitmapFont();
 		this.font.setColor(Color.RED);
 		this.herd = herd;
+		
+        pixmapCircle = new Pixmap(Sheep.SIGHT_DISTANCE * 2, Sheep.SIGHT_DISTANCE * 2, Format.RGBA4444);
+        Pixmap.setBlending(Blending.None);
+        pixmapCircle.setColor(1, 0, 0, 0.5f);
+        pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
+        pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
+	}
+	
+	/**
+	 * Calculates sheeps behavior and draws it to the batch.
+	 * @param batch SpriteBatch where the sheep should be drawn
+	 */
+	public void render(SpriteBatch batch) {
+		move();
+		draw(batch);
+		drawProperties(batch);
+		playSound();
 	}
 
-	// Is being called by renderer to update movement. Result is saved in
-	// destination attribute
-	public void move() {
+	private void move() {
 		
 		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
 		
@@ -62,101 +80,94 @@ public class Sheep extends Sprite {
 		if (this.getY() <= 0)
 			this.setY(0);
 	}
-
-	// Helper method to evaluate the next destination Point
-	public Vector2 getDirection() {
-		
-		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
-		
-		Vector2 direction = new Vector2(0,0);
-		for (Sheep neighbour : neighbours) {
-			direction.add(directionToSheep(neighbour));
-		}
-		return direction.nor();
-	}
-
-	private Vector2 getHeading() {
-		// Return the directional vector between current position and
-		// destination
-		return null;
-	}
-
-	private double measureDistance(Sheep target) {
-		return Math.sqrt(Math.pow(Math.abs(target.getX() - this.getX()), 2)
-				+ Math.pow(Math.abs(target.getY() - this.getY()), 2));
-	}
-
-	private Vector2 directionToSheep(Sheep target) {
-		return new Vector2((target.getX() - this.getX()), (target.getY() - this.getY()));
-	}
 	
-	private Array<Sheep> sheepInNearDistance() {
-		Array<Sheep> result = new Array<Sheep>();
-		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < 25.0)
-				result.add(neighbour);
-		}
-		return result;
-	}
-
-	private Array<Sheep> sheepInMediumDistance() {
-		Array<Sheep> result = new Array<Sheep>();
-		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < 75.0
-					&& measureDistance(neighbour) >= 25)
-				result.add(neighbour);
-		}
-		return result;
-	}
-
-	private Array<Sheep> sheepInFarDistance() {
-		Array<Sheep> result = new Array<Sheep>();
-		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < 150.0
-					&& measureDistance(neighbour) >= 75)
-				result.add(neighbour);
-		}
-		return result;
+	private void drawProperties(SpriteBatch batch) {
+		
+		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
+		
+		DecimalFormat df = new DecimalFormat("##.###");
+		String speed = df.format(getMovementSpeed());
+		String angle = df.format(getRotation());
+		font.draw(batch, "spd " + speed, getX(), getY());
+		font.draw(batch, "rot " + angle, getX(), getY() - 15);
 	}
 	
 	private Array<Sheep> sheepsAround(int sight) {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < sight
-					&& measureDistance(neighbour) >= 0)
+			if (distanceTo(neighbour) < sight
+					&& distanceTo(neighbour) >= 0)
 				result.add(neighbour);
 		}
 		return result;
 	}
 	
-	public void render(SpriteBatch batch) {
-		move();
-		draw(batch);
+	private Vector2 getDirection() {
+		
+		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
+		
+		Vector2 direction = new Vector2(0,0);
+		for (Sheep neighbour : neighbours) {
+			direction.add(directionTo(neighbour));
+		}
+		return direction.nor();
+	}
+	
+	private double distanceTo(Sheep target) {
+		return Math.sqrt(Math.pow(Math.abs(target.getX() - this.getX()), 2)
+				+ Math.pow(Math.abs(target.getY() - this.getY()), 2));
 	}
 
-	public double getMovementSpeed() {
+	private Vector2 directionTo(Sheep target) {
+		return new Vector2((target.getX() - this.getX()), (target.getY() - this.getY()));
+	}
+
+	private double getMovementSpeed() {
 		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
 		double excitation = 0.0;
 		for (Sheep neighbour : neighbours) {
-			excitation += measureDistance(neighbour) / neighbours.size;
+			excitation += distanceTo(neighbour) / neighbours.size;
 		}
 		
 		Catalog.set("Excitation", excitation);
 		Catalog.evalAllRules();
 		double movement = Catalog.get("Movement");
 		return movement;
-		
-//		return excitation / neighbours.size;
-		
-//		Catalog.set("close", sheepInNearDistance().size);
-//		Catalog.set("inreach", sheepInMediumDistance().size);
-//		Catalog.set("distant", sheepInFarDistance().size);
-//		Catalog.evalAllRules();
-//		return Catalog.get("Excitation");
 	}
-
-	public BitmapFont getFont() {
-		return this.font;
+	
+	private void playSound() {
+		if (rand.nextInt(8192) == 1) {
+			sheepSound.play();
+		}
 	}
+	
+//	private Array<Sheep> sheepInNearDistance() {
+//	Array<Sheep> result = new Array<Sheep>();
+//	for (Sheep neighbour : this.herd) {
+//		if (distanceTo(neighbour) < 25.0)
+//			result.add(neighbour);
+//	}
+//	return result;
+//}
+//
+//private Array<Sheep> sheepInMediumDistance() {
+//	Array<Sheep> result = new Array<Sheep>();
+//	for (Sheep neighbour : this.herd) {
+//		if (distanceTo(neighbour) < 75.0
+//				&& distanceTo(neighbour) >= 25)
+//			result.add(neighbour);
+//	}
+//	return result;
+//}
+//
+//private Array<Sheep> sheepInFarDistance() {
+//	Array<Sheep> result = new Array<Sheep>();
+//	for (Sheep neighbour : this.herd) {
+//		if (distanceTo(neighbour) < 150.0
+//				&& distanceTo(neighbour) >= 75)
+//			result.add(neighbour);
+//	}
+//	return result;
+//}
 }
