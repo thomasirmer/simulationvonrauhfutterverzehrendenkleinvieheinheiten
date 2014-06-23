@@ -1,14 +1,20 @@
 package de.rub.SVRVKVE.animals;
 
+import java.util.Iterator;
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
+import de.rub.SVRVKVE.simulation.HerdSimulation;
 import de.rub.fuzzy.Catalog;
 
 public class Sheep extends Sprite {
@@ -19,7 +25,8 @@ public class Sheep extends Sprite {
 	private Array<Sheep> herd;
 	private BitmapFont font;
 	
-	public static final int sigthDistance = 50;
+	public static final int SIGHT_DISTANCE = 50;
+	public static final int MOVE_SPEED = 50;
 
 	public Sheep(Array<Sheep> herd, int x, int y, int width, int height) {
 //		super(x, y, width, height);
@@ -35,13 +42,30 @@ public class Sheep extends Sprite {
 	// Is being called by renderer to update movement. Result is saved in
 	// destination attribute
 	public void move() {
-
+		
+		float distance = MOVE_SPEED * Gdx.graphics.getDeltaTime();
+		
+		setRotation(getDirection().angle());
+		float directionX = (float) Math.cos(Math.toRadians(getRotation()));
+		float directionY = (float) Math.sin(Math.toRadians(getRotation()));
+		
+		this.setX(this.getX() + directionX * distance);
+		this.setY(this.getY() + directionY * distance);
+		
+		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
+			this.setX(HerdSimulation.WINDOW_X - this.getWidth());
+		if (this.getX() <= 0)
+			this.setX(0);
+		if (this.getY() >= HerdSimulation.WINDOW_Y - this.getHeight())
+			this.setY(HerdSimulation.WINDOW_Y - this.getHeight());
+		if (this.getY() <= 0)
+			this.setY(0);
 	}
 
 	// Helper method to evaluate the next destination Point
-	public Vector2 evaluateMovement() {
+	public Vector2 getDirection() {
 		
-		Array<Sheep> neighbours = sheepsAround();
+		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
 		
 		Vector2 direction = new Vector2(0,0);
 		for (Sheep neighbour : neighbours) {
@@ -50,7 +74,7 @@ public class Sheep extends Sprite {
 		return direction.nor();
 	}
 
-	public Vector2 getHeading() {
+	private Vector2 getHeading() {
 		// Return the directional vector between current position and
 		// destination
 		return null;
@@ -94,19 +118,24 @@ public class Sheep extends Sprite {
 		return result;
 	}
 	
-	private Array<Sheep> sheepsAround() {
+	private Array<Sheep> sheepsAround(int sight) {
 		Array<Sheep> result = new Array<Sheep>();
 		for (Sheep neighbour : this.herd) {
-			if (measureDistance(neighbour) < sigthDistance
+			if (measureDistance(neighbour) < sight
 					&& measureDistance(neighbour) >= 0)
 				result.add(neighbour);
 		}
 		return result;
 	}
+	
+	public void render(SpriteBatch batch) {
+		move();
+		draw(batch);
+	}
 
 	public double evaluateExcitation() {
 		
-		Array<Sheep> neighbours = sheepsAround();
+		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
 		double excitation = 0.0;
 		for (Sheep neighbour : neighbours) {
 			excitation += measureDistance(neighbour) / neighbours.size;

@@ -17,12 +17,8 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 
 import de.rub.SVRVKVE.animals.Dog;
 import de.rub.SVRVKVE.animals.Sheep;
@@ -68,11 +64,10 @@ public class HerdSimulation extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
         font.setColor(Color.RED);
-        pixmapCircle = new Pixmap(Sheep.sigthDistance * 2, Sheep.sigthDistance * 2, Format.RGBA4444);
+        pixmapCircle = new Pixmap(Sheep.SIGHT_DISTANCE * 2, Sheep.SIGHT_DISTANCE * 2, Format.RGBA4444);
         Pixmap.setBlending(Blending.None);
         pixmapCircle.setColor(1, 0, 0, 0.5f);
-        pixmapCircle.drawCircle(Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance);
-        pixmapCircle.drawLine(Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance, Sheep.sigthDistance * 2);
+        pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
         pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
 
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
@@ -115,15 +110,20 @@ public class HerdSimulation extends ApplicationAdapter {
 
 		playSounds();
 		
-		moveSheeps();
-		
 		// begin drawing object to batch
 		batch.begin();
 		
 		// draw texture
 		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
 
-		drawSheeps();
+		// draw dog
+		dog.render(batch);
+		
+		// draw sheeps
+		for (int i=0; i<sheepHerd.size; i++) {
+			sheepHerd.get(i).render(batch);
+			batch.draw(pixmapCircleTexture, sheepHerd.get(i).getX() - Sheep.SIGHT_DISTANCE/2, sheepHerd.get(i).getY() - Sheep.SIGHT_DISTANCE/2);
+		}
 		
 		// display sheep's current mood
 		DecimalFormat df = new DecimalFormat("##.###");
@@ -134,51 +134,9 @@ public class HerdSimulation extends ApplicationAdapter {
 			//System.out.println("Sheep # "+i+"\'s excitation: "+sheepHerd.get(i).evaluateExcitation());
 		}
 
-		// draw dog
-		dog.render(batch);
-
 		batch.end();
 	}
 
-	private void drawSheeps() {
-
-		for (int i=0; i<sheepHerd.size; i++) {
-			Sheep currentSheep = sheepHerd.get(i);
-			currentSheep.rotate(currentSheep.evaluateMovement().angle());
-			
-			currentSheep.draw(batch);
-			
-//			batch.draw(currentSheep, currentSheep.getX(), currentSheep.getY(), sheepWidth,
-//					sheepHeigth);
-			batch.draw(pixmapCircleTexture, currentSheep.getX() - Sheep.sigthDistance, currentSheep.getY() - Sheep.sigthDistance);
-		
-		}
-	}
-
-	private void moveSheeps() {
-		
-		if (TimeUtils.millis() - lastUpdateTime > 25) {
-			
-			Iterator<Sheep> sheeperator = sheepHerd.iterator();
-			
-			while (sheeperator.hasNext()) {
-				Sheep currentSheep = sheeperator.next();				
-				currentSheep.setX(currentSheep.getX() + rand.nextInt(3) - 1);
-				currentSheep.setY(currentSheep.getY() + rand.nextInt(3) - 1);
-				
-				if (currentSheep.getX() >= WINDOW_X - sheepWidth)
-					currentSheep.setX(WINDOW_X - sheepWidth);
-				if (currentSheep.getX() <= 0)
-					currentSheep.setX(0);
-				if (currentSheep.getY() >= WINDOW_Y - sheepHeigth)
-					currentSheep.setY(WINDOW_Y - sheepHeigth);
-				if (currentSheep.getY() <= 0)
-					currentSheep.setY(0);
-			}
-			lastUpdateTime = TimeUtils.millis();
-		}
-	}
-	
 	private void playSounds() {
 		if (rand.nextInt(256) == 1) {
 			sheepSound.play();
