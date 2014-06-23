@@ -21,7 +21,7 @@ import de.rub.fuzzy.Catalog;
 
 public class Sheep extends Sprite {
 
-	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepImage.png"));
+	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepWithEyes.png"));
 	private static final Sound sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3")); 
 	private Array<Sheep> herd;
 	private BitmapFont font;
@@ -57,7 +57,7 @@ public class Sheep extends Sprite {
 		move();
 		draw(batch);
 		drawProperties(batch);
-		playSound();
+		//playSound();
 	}
 
 	private void move() {
@@ -65,10 +65,10 @@ public class Sheep extends Sprite {
 		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
 		
 		setRotation(getDirection().angle());
-		float directionX = (float) Math.cos(Math.toRadians(getRotation()));
-		float directionY = (float) Math.sin(Math.toRadians(getRotation()));
+		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
+		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
 		
-		this.setX(this.getX() + directionX * distance);
+		this.setX(this.getX() - directionX * distance);
 		this.setY(this.getY() + directionY * distance);
 		
 		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
@@ -137,7 +137,7 @@ public class Sheep extends Sprite {
 	}
 	
 	private void playSound() {
-		if (rand.nextInt(8192) == 1) {
+		if (rand.nextInt(16000) == 1) {
 			sheepSound.play();
 		}
 	}
