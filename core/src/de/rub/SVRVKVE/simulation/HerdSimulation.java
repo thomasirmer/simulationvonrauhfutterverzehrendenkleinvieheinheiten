@@ -35,8 +35,8 @@ public class HerdSimulation extends ApplicationAdapter {
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
-	int sheepWidth 		= 50;
-	int sheepHeigth 	= 50;
+	int sheepWidth 		= 46;
+	int sheepHeigth 	= 63;
 	int numberOfSheeps 	= 64;
 	
 	// everything about the dog

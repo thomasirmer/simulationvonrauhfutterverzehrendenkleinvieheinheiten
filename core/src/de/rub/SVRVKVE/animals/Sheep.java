@@ -104,8 +104,8 @@ public class Sheep extends Sprite {
 		
 		shapeRen.setColor(0, 0, 1, 0.5f);
 		Vector2 direction = getDirection().scl(100.0f);
-		shapeRen.line(new Vector2(getX() + getWidth()/2, getY() + getHeight()/2),
-				new Vector2(getX() + direction.x, getY() + direction.y));
+		shapeRen.line(getX() + getWidth()/2, getY() + getHeight()/2,
+				getX() + direction.x + getWidth()/2, getY() + direction.y + getHeight()/2);
 	}
 	
 	/**
@@ -134,8 +134,9 @@ public class Sheep extends Sprite {
 		
 		// get direction based on other sheeps
 		for (Sheep neighbour : neighbours) {
-			direction.add(directionTo(neighbour).nor());
+			direction.add(directionTo(neighbour).nor().scl((float) (1 / distanceTo(neighbour))));
 		}
+		direction.nor();
 		
 		// get direction based on doggy doggy dog
 		direction.sub(directionTo(dog).nor());
