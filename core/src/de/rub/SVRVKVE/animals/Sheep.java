@@ -134,11 +134,11 @@ public class Sheep extends Sprite {
 		
 		// get direction based on other sheeps
 		for (Sheep neighbour : neighbours) {
-			direction.add(directionTo(neighbour));
+			direction.add(directionTo(neighbour).nor());
 		}
 		
 		// get direction based on doggy doggy dog
-		direction.sub(directionTo(dog));
+		direction.sub(directionTo(dog).nor());
 		
 		return direction.nor();
 	}
