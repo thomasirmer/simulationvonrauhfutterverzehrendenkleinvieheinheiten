@@ -121,7 +121,7 @@ public class Sheep extends Sprite {
 	 * @return the direction
 	 */
 	private Vector2 getDirection() {
-		// TODO: The calculation of the direction seems not to work due to crappy vector-calculation
+		// TODO: The calculation of the direction seems not to work due to crappy vector-calculation		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
 		
 		Vector2 direction = new Vector2(0,0);
