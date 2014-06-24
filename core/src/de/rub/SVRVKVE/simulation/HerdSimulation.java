@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.Array;
 
@@ -29,11 +31,12 @@ public class HerdSimulation extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Texture backgroundTexture;
+	ShapeRenderer shapeRen;
 	
 	// everything about the sheeps
 	Array<Sheep> sheepHerd;
-	int sheepWidth 		= 50;
-	int sheepHeigth 	= 50;
+	int sheepWidth 		= 46;
+	int sheepHeigth 	= 63;
 	int numberOfSheeps 	= 64;
 	
 	// everything about the dog
@@ -50,6 +53,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		// set up graphics
 		batch = new SpriteBatch();
 		backgroundTexture = new Texture(Gdx.files.internal("grassTexture.jpg"));
+		shapeRen = new ShapeRenderer();
 		
 		// set up input handler
 		Gdx.input.setInputProcessor(inputHandler);
@@ -89,6 +93,7 @@ public class HerdSimulation extends ApplicationAdapter {
 
 		// begin drawing object to batch
 		batch.begin();
+		shapeRen.begin(ShapeType.Line);
 		
 		// draw texture
 		batch.draw(backgroundTexture, 0, 0, WINDOW_X, WINDOW_Y);
@@ -98,9 +103,10 @@ public class HerdSimulation extends ApplicationAdapter {
 		
 		// draw sheeps
 		for (int i=0; i<sheepHerd.size; i++) {
-			sheepHerd.get(i).render(batch);
+			sheepHerd.get(i).render(batch, shapeRen);
 		}
 
+		shapeRen.end();
 		batch.end();
 	}
 	
