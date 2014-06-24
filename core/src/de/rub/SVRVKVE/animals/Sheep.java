@@ -32,7 +32,7 @@ public class Sheep extends Sprite {
 	Texture pixmapCircleTexture;
 	
 	public static final int SIGHT_DISTANCE 	= 50;
-	public static final int MOVE_SPEED 		= 2;
+	public static final int STEP_SPEED 		= 2;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);
@@ -67,7 +67,7 @@ public class Sheep extends Sprite {
 	 */
 	private void move() {
 		
-		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
+		float distance = (float) (STEP_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
 		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
 		
 		setRotation(getDirection().angle() - 90);
@@ -138,7 +138,7 @@ public class Sheep extends Sprite {
 		}
 		
 		// get direction based on doggy doggy dog
-//		direction.sub(directionTo(dog));
+		direction.sub(directionTo(dog));
 		
 		return direction.nor();
 	}
