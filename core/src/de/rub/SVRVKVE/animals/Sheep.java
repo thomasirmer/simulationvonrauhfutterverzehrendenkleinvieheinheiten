@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -31,7 +32,7 @@ public class Sheep extends Sprite {
 	Texture pixmapCircleTexture;
 	
 	public static final int SIGHT_DISTANCE 	= 50;
-	public static final int MOVE_SPEED 		= 20;
+	public static final int MOVE_SPEED 		= 2;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);
@@ -48,16 +49,16 @@ public class Sheep extends Sprite {
         pixmapCircle.setColor(1, 0, 0, 0.5f);
         pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
         pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
-	}
+   	}
 	
 	/**
 	 * Calculates sheeps behavior and draws it to the batch.
 	 * @param batch SpriteBatch where the sheep should be drawn
 	 */
-	public void render(SpriteBatch batch) {
+	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
 		move();
 		draw(batch);
-		drawProperties(batch);
+		drawProperties(batch, shapeRen);
 		//playSound();
 	}
 
@@ -69,7 +70,7 @@ public class Sheep extends Sprite {
 		float distance = (float) (MOVE_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
 		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
 		
-		setRotation(getDirection().angle());
+		setRotation(getDirection().angle() - 90);
 		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
 		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
 		
@@ -90,7 +91,7 @@ public class Sheep extends Sprite {
 	 * Draws information about the sheeps mood and its supervised area
 	 * @param batch
 	 */
-	private void drawProperties(SpriteBatch batch) {
+	private void drawProperties(SpriteBatch batch, ShapeRenderer shapeRen) {
 		
 		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
 		
@@ -100,6 +101,11 @@ public class Sheep extends Sprite {
 		font.draw(batch, "spd " + speed, getX(), getY());
 		font.draw(batch, "rot " + angle, getX(), getY() - 15);
 		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
+		
+		shapeRen.setColor(0, 0, 1, 0.5f);
+		Vector2 direction = getDirection().scl(100.0f);
+		shapeRen.line(new Vector2(getX() + getWidth()/2, getY() + getHeight()/2),
+				new Vector2(getX() + direction.x, getY() + direction.y));
 	}
 	
 	/**
@@ -132,7 +138,7 @@ public class Sheep extends Sprite {
 		}
 		
 		// get direction based on doggy doggy dog
-		direction.sub(directionTo(dog));
+//		direction.sub(directionTo(dog));
 		
 		return direction.nor();
 	}
@@ -143,8 +149,8 @@ public class Sheep extends Sprite {
 	 * @return distance
 	 */
 	private double distanceTo(Sprite target) {
-		return Math.sqrt(Math.pow(Math.abs(target.getX() - this.getX()), 2)
-				+ Math.pow(Math.abs(target.getY() - this.getY()), 2));
+		return Math.sqrt(Math.pow(Math.abs(target.getX() + target.getWidth()/2 - this.getX() + getWidth()/2), 2)
+				+ Math.pow(Math.abs(target.getY() + target.getHeight()/2 - this.getY() + getHeight()/2), 2));
 	}
 
 	/**
@@ -153,7 +159,8 @@ public class Sheep extends Sprite {
 	 * @return direction
 	 */
 	private Vector2 directionTo(Sprite target) {
-		return new Vector2((target.getX() - this.getX()), (target.getY() - this.getY()));
+		return new Vector2((target.getX() + target.getWidth()/2 - this.getX() + getWidth()/2),
+				(target.getY() + target.getHeight()/2 - this.getY() + getHeight()/2));
 	}
 
 	/**
