@@ -31,11 +31,18 @@ public class Sheep extends Sprite {
 	Pixmap pixmapCircle;
 	Texture pixmapCircleTexture;
 	
-	public static final int SIGHT_DISTANCE 	= 50;
-	public static final int STEP_SPEED 		= 2;
+	public static final int SIGHT_DISTANCE 		 	= 50;
+	public static final float MAX_MOVE_SPEED  		= 0.01f;
+	public static final float MAX_ROTATION_SPEED 	= 0.01f;
+	
+	private Vector2 position;
+	private Vector2 currentVelocity;
+	private Vector2 desiredVelocity;
+	private Vector2 steering;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);
+		
 		this.setPosition(x, y);
 		this.setSize(width, height);
 		this.setOriginCenter();
@@ -49,6 +56,12 @@ public class Sheep extends Sprite {
         pixmapCircle.setColor(1, 0, 0, 0.5f);
         pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
         pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
+        
+        // initialize movement parameters
+        position		= new Vector2(getX(), getY());
+        currentVelocity = new Vector2(0, 0);
+        desiredVelocity = new Vector2(0, 0);
+        steering		= new Vector2(0, 0);
    	}
 	
 	/**
@@ -67,24 +80,37 @@ public class Sheep extends Sprite {
 	 */
 	private void move() {
 		
-		float distance = (float) (STEP_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
-		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
+		position.set(getX(), getY());
 		
-		setRotation(getDirection().angle() - 90);
-		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
-		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
+		desiredVelocity = directionTo(dog).scl(MAX_MOVE_SPEED);
+		steering = desiredVelocity.sub(currentVelocity).scl(MAX_ROTATION_SPEED);
+		currentVelocity.add(steering);
 		
-		this.setX(this.getX() - directionX * distance);
-		this.setY(this.getY() + directionY * distance);
+		position.add(currentVelocity);
 		
-		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
-			this.setX(HerdSimulation.WINDOW_X - this.getWidth());
-		if (this.getX() <= 0)
-			this.setX(0);
-		if (this.getY() >= HerdSimulation.WINDOW_Y - this.getHeight())
-			this.setY(HerdSimulation.WINDOW_Y - this.getHeight());
-		if (this.getY() <= 0)
-			this.setY(0);
+		setPosition(position.x, position.y);
+		
+		// set current rotation
+		setRotation(currentVelocity.angle() - 90);
+		
+//		float distance = (float) (STEP_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
+//		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
+//		
+//		setRotation(getDirection().angle() - 90);
+//		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
+//		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
+//		
+//		this.setX(this.getX() - directionX * distance);
+//		this.setY(this.getY() + directionY * distance);
+//		
+//		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
+//			this.setX(HerdSimulation.WINDOW_X - this.getWidth());
+//		if (this.getX() <= 0)
+//			this.setX(0);
+//		if (this.getY() >= HerdSimulation.WINDOW_Y - this.getHeight())
+//			this.setY(HerdSimulation.WINDOW_Y - this.getHeight());
+//		if (this.getY() <= 0)
+//			this.setY(0);
 	}
 	
 	/**
@@ -94,18 +120,25 @@ public class Sheep extends Sprite {
 	private void drawProperties(SpriteBatch batch, ShapeRenderer shapeRen) {
 		
 		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
-		
-		DecimalFormat df = new DecimalFormat("##.###");
-		String speed = df.format(getMovementSpeed());
-		String angle = df.format(getRotation());
-		font.draw(batch, "spd " + speed, getX(), getY());
-		font.draw(batch, "rot " + angle, getX(), getY() - 15);
-		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
-		
+				
 		shapeRen.setColor(0, 0, 1, 0.5f);
-		Vector2 direction = getDirection().scl(100.0f);
-		shapeRen.line(getX() + getWidth()/2, getY() + getHeight()/2,
-				getX() + direction.x + getWidth()/2, getY() + direction.y + getHeight()/2);
+		shapeRen.line(position, new Vector2(dog.getX(), dog.getY()));
+		
+		shapeRen.setColor(0, 1, 1, 0.5f);
+		
+//		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
+//		
+//		DecimalFormat df = new DecimalFormat("##.###");
+//		String speed = df.format(getMovementSpeed());
+//		String angle = df.format(getRotation());
+//		font.draw(batch, "spd " + speed, getX(), getY());
+//		font.draw(batch, "rot " + angle, getX(), getY() - 15);
+//		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
+//		
+//		shapeRen.setColor(0, 0, 1, 0.5f);
+//		Vector2 direction = getDirection().scl(100.0f);
+//		shapeRen.line(getX() + getWidth()/2, getY() + getHeight()/2,
+//				getX() + direction.x + getWidth()/2, getY() + direction.y + getHeight()/2);
 	}
 	
 	/**
@@ -127,7 +160,6 @@ public class Sheep extends Sprite {
 	 * @return the direction
 	 */
 	private Vector2 getDirection() {
-		// TODO: The calculation of the direction seems not to work due to crappy vector-calculation		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
 		
 		Vector2 direction = new Vector2(0,0);
