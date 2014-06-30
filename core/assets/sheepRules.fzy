@@ -1,7 +1,21 @@
-+	Excitation
--	low		-1,	0,	9,	10
--	mid		8,	10,	20,	22
--	high	15,	25,	35,	45
++	DirectionToDog
+-	left	-90, 0, 0, 0
+-	centerLeft	-15, -10, 0, 0
+-	centerRight	0, 0, 10, 15
+-	right	0, 0, 0, 90
+
++	RotationRate
+-	left	-0.5, -0.25, -0.25, 0
+-	lefter	-1, -1, -1, 0
+-	right	0, 0.25, 0.25, 0.5
+-	righter	0, 1, 1, 1
+
+if DirectionToDog=left then RotationRate=right
+if DirectionToDog=centerLeft then RotationRate=righter
+if DirectionToDog=right then RotationRate=left
+if DirectionToDog=centerRight then RotationRate=lefter
+
+
 
 +	Movement
 -	slow	0,	1,	4,	5
