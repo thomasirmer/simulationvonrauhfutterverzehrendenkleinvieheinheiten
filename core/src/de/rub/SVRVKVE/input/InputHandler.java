@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 
+import de.rub.SVRVKVE.simulation.HerdSimulation;
+
 public class InputHandler implements InputProcessor {
     private ArrayList<InputListener> inputListeners= new ArrayList<InputListener>();  
     InputListener listener = new InputListener();

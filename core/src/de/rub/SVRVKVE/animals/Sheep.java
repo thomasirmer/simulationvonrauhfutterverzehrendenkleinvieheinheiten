@@ -31,16 +31,21 @@ public class Sheep extends Sprite {
 	Texture pixmapCircleTexture;
 	
 	public static final int SIGHT_DISTANCE 		 	= 50;
-	public static final float MAX_MOVE_SPEED  		= 1f;
+	public static final float MAX_MOVE_SPEED  		= 0.5f;
 	public static final float MAX_ROTATION_SPEED 	= 0.01f;
 	
 	private Vector2 centerPosition;
 	private Vector2 currentVelocity;
 	private Vector2 desiredVelocity;
 	private Vector2 steering;
+	
+	private Random rand2;
+	int moveCount = 0;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);
+		
+		rand2 = new Random(0);
 		
 		this.setPosition(x, y);
 		this.setSize(width, height);
@@ -68,24 +73,48 @@ public class Sheep extends Sprite {
 	 * @param batch SpriteBatch where the sheep should be drawn
 	 */
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
-		move();
+		//move();
+	
+		if (moveCount <= 0 && rand.nextInt(100) == 1) {
+			moveCount = 50;
+		}
+		if (moveCount > 0) {
+			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
+			Vector2 sheepSteering = getSteeringTowards(getHerdDirection(herd));
+			//addSteering(dogSteering);
+			addSteering(sheepSteering);
+			moveCount--;
+		}
+
 		draw(batch);
 		//drawProperties(batch, shapeRen);
 		//playSound();
 	}
-
-	/**
-	 * Calculates sheeps movement and sets its new location.
-	 */
-	private void move() {
-		
+	
+	private Vector2 getHerdDirection(Array<Sheep> targets) {
 		centerPosition.set(getCenterPosition());
 		
+		Vector2 currentCenter;
+		Vector2 direction = new Vector2(0,0);
+		
+		for (Sheep sheep : targets) {
+			currentCenter = getCenterPosition();
+			currentCenter.sub(sheep.centerPosition);
+			direction.add(currentCenter);
+			direction.scl(1/targets.size);
+		}
+		
+		return direction;
+	}
+	
+	private Vector2 getSteeringTowards(Vector2 target) {
+		centerPosition.set(getCenterPosition());
+
 		// seek pattern (move towards the target)
-		desiredVelocity = dog.getCenterPosition().sub(centerPosition);
+		desiredVelocity = target.sub(centerPosition);
 				
 		// flee pattern (move away from target)
-		//desiredVelocity = getCenterPosition().sub(dog.getCenterPosition());
+		//desiredVelocity = getCenterPosition().sub(target);
 		
 		// arrival pattern (slowing down when entering the slow-down-radius)
 		float slowingRadius = 150;
@@ -98,6 +127,21 @@ public class Sheep extends Sprite {
 		
 		steering = desiredVelocity.sub(currentVelocity).nor().scl(MAX_ROTATION_SPEED);
 		
+		return steering;
+	}
+	
+	private Vector2 getFleeFrom(Vector2 hunter) {
+		centerPosition.set(getCenterPosition());
+				
+		// flee pattern (move away from target)
+		desiredVelocity = getCenterPosition().sub(hunter);
+		
+		steering = desiredVelocity.sub(currentVelocity).nor().scl(MAX_ROTATION_SPEED);
+		
+		return steering;
+	}
+	
+	private void addSteering (Vector2 steering) {
 		currentVelocity.add(steering);
 		centerPosition.add(currentVelocity);
 		
@@ -109,25 +153,6 @@ public class Sheep extends Sprite {
 		if (getCenterPosition().x <= 0) setX(0 - getWidth()/2);
 		if (getCenterPosition().y >= HerdSimulation.WINDOW_Y) setY(HerdSimulation.WINDOW_Y - getHeight()/2);
 		if (getCenterPosition().y <= 0) setY(0 - getHeight()/2);
-		
-//		float distance = (float) (STEP_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
-//		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
-//		
-//		setRotation(getDirection().angle() - 90);
-//		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
-//		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
-//		
-//		this.setX(this.getX() - directionX * distance);
-//		this.setY(this.getY() + directionY * distance);
-//		
-//		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
-//			this.setX(HerdSimulation.WINDOW_X - this.getWidth());
-//		if (this.getX() <= 0)
-//			this.setX(0);
-//		if (this.getY() >= HerdSimulation.WINDOW_Y - this.getHeight())
-//			this.setY(HerdSimulation.WINDOW_Y - this.getHeight());
-//		if (this.getY() <= 0)
-//			this.setY(0);
 	}
 	
 	/**
