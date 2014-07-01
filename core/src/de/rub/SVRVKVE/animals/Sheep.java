@@ -85,6 +85,16 @@ public class Sheep extends Sprite {
 			addSteering(sheepSteering);
 			moveCount--;
 		}
+		
+		/*
+		// *** calculate steering with fuzzy rules
+		// angle to target
+		Vector2 norCurrentVelocity = new Vector2(currentVelocity).nor();
+		Vector2 norDesiredVelocity = new Vector2(desiredVelocity).nor();
+		
+		double angle = (Math.acos(norCurrentVelocity.dot(norDesiredVelocity)) / (2 * Math.PI)) * 360;
+		
+		 */
 
 		draw(batch);
 		//drawProperties(batch, shapeRen);
