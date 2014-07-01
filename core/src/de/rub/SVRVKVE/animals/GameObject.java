@@ -27,6 +27,19 @@ public class GameObject extends Sprite {
 		else
 			return 0;
 	}
+	
+	protected double getAngleToTarget(Vector2 ownDirection, Vector2 targetDirection) {
+		Vector2 norOwnDirection    = new Vector2(ownDirection).nor();
+		Vector2 norTargetDirection = new Vector2(targetDirection).nor();
+		
+		double cos   = norOwnDirection.dot(norTargetDirection);
+		double rad   = Math.acos(cos);
+		double angle = Math.toDegrees(rad);
+		
+		System.out.println("cos:" + cos + " rad: " + rad + " ang: " + angle);
+		
+		return angle;
+	}
 
 	/**
 	 * Returns the normalized Vector to any number of game Objects you throw at
@@ -44,13 +57,13 @@ public class GameObject extends Sprite {
 		for (GameObject target : targets) {
 			if (!this.equals(target)) {
 				currentCenter = getCenterPosition();
-				currentCenter.sub(target.getCenterPosition());
-				direction.add(currentCenter);
-				direction.nor();
+				Vector2 targetCenter = target.getCenterPosition().cpy();
+				targetCenter.sub(currentCenter);
+				direction.add(targetCenter.nor());
 			}
 		}
 
-		return direction;
+		return direction.nor();
 	}
 
 	// protected Vector2 getLookDirektion(){

@@ -15,21 +15,9 @@ if DirectionToDog=centerLeft then RotationRate=righter
 if DirectionToDog=right then RotationRate=left
 if DirectionToDog=centerRight then RotationRate=lefter
 
-
 +	DirectionToHerd
 -	left	-180, 0, 0, 0
 -	right	0, 0, 0, 180
 
 if DirectionToHerd=left then RotationRate=left
 if DirectionToHerd=right then RotationRate=right
-
-
-
-+	Movement
--	slow	0,	1,	4,	5
--	mid		3,	5,	9,	11
--	fast	8,	10,	15,	17
-
-if Excitation=low 	then Movement=slow
-if Excitation=mid 	then Movement=mid
-if Excitation=high 	then Movement=fast 

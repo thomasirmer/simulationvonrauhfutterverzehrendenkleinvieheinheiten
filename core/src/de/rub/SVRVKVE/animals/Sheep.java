@@ -79,18 +79,21 @@ public class Sheep extends GameObject{
 //			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
 			Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
 			
-			
+			Array<GameObject> dogArray = new Array<GameObject>();
+			dogArray.add(dog);
+			Vector2 directionToDog = getDirectionToGObjects(dogArray);
 			
 			//addSteering(dogSteering);
-			float angle =convertAngleForFuzzy(getRotation()-directionToHerd.angle());					
+			double angle = getAngleToTarget(new Vector2(0, 1), directionToDog);
 					
-			Catalog.set("DirectionToHerd", angle);
+			Catalog.set("DirectionToDog", angle);
 			Catalog.evalAllRules();
 			float rotation = (float) Catalog.get("RotationRate");
 			
+			System.out.println("angle: " + angle + " rotation: " + rotation);
+			
 //			addSteering(rotation);
-			rotate(rotation);
-			moveCount--;
+			//rotate(rotation);
 //		}
 
 		draw(batch);
