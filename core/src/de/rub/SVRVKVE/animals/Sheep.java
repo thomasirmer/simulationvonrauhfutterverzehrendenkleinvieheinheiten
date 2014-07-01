@@ -1,6 +1,5 @@
 package de.rub.SVRVKVE.animals;
 
-import java.text.DecimalFormat;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
@@ -19,7 +18,7 @@ import com.badlogic.gdx.utils.Array;
 import de.rub.SVRVKVE.simulation.HerdSimulation;
 import de.rub.fuzzy.Catalog;
 
-public class Sheep extends Sprite {
+public class Sheep extends GameObject{
 
 	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepWithEyes.png"));
 	private static final Sound sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3")); 
@@ -31,16 +30,25 @@ public class Sheep extends Sprite {
 	Pixmap pixmapCircle;
 	Texture pixmapCircleTexture;
 	
-	public static final int SIGHT_DISTANCE 	= 50;
-	public static final int STEP_SPEED 		= 2;
+	public static final int SIGHT_DISTANCE 		 	= 50;
+	public static final float MAX_MOVE_SPEED  		= 0.5f;
+	public static final float MAX_ROTATION_SPEED 	= 0.01f;
+	
+	private Vector2 centerPosition;
+	private Vector2 currentVelocity;
+	private Vector2 desiredVelocity;
+	private Vector2 steering;	
+	
+	int moveCount = 0;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
-		super(image);
+		super(image);		
+		
 		this.setPosition(x, y);
 		this.setSize(width, height);
 		this.setOriginCenter();
 		this.font = new BitmapFont();
-		this.font.setColor(0, 0, 0, 0.5f);
+		this.font.setColor(1, 1, 0.5f, 0.5f);
 		this.herd = herd;
 		this.dog = dog;
 		
@@ -49,6 +57,12 @@ public class Sheep extends Sprite {
         pixmapCircle.setColor(1, 0, 0, 0.5f);
         pixmapCircle.drawCircle(Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE, Sheep.SIGHT_DISTANCE);
         pixmapCircleTexture = new Texture(pixmapCircle, Format.RGBA4444, false);
+        
+        // initialize movement parameters
+        centerPosition	= getCenterPosition();
+        currentVelocity = new Vector2(0, 0);
+        desiredVelocity = new Vector2(0, 0);
+        steering		= new Vector2(0, 0);
    	}
 	
 	/**
@@ -56,35 +70,82 @@ public class Sheep extends Sprite {
 	 * @param batch SpriteBatch where the sheep should be drawn
 	 */
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
-		move();
+		//move();
+	
+//		if (moveCount <= 0 && rand.nextInt(100) == 1) {
+//			moveCount = 50;
+//		}
+//		if (moveCount > 0) {
+//			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
+			Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
+			
+			
+			
+			//addSteering(dogSteering);
+			float angle =convertAngleForFuzzy(getRotation()-directionToHerd.angle());					
+					
+			Catalog.set("DirectionToHerd", angle);
+			Catalog.evalAllRules();
+			float rotation = (float) Catalog.get("RotationRate");
+			
+//			addSteering(rotation);
+			rotate(rotation);
+			moveCount--;
+//		}
+
 		draw(batch);
-		drawProperties(batch, shapeRen);
+		//drawProperties(batch, shapeRen);
 		//playSound();
 	}
+	
+	
+	
+	private Vector2 getSteeringTowards(Vector2 target) {
+		centerPosition.set(getCenterPosition());
 
-	/**
-	 * Calculates sheeps movement and sets its new location.
-	 */
-	private void move() {
+		// seek pattern (move towards the target)
+		desiredVelocity = target.sub(centerPosition);
+				
+		// flee pattern (move away from target)
+		//desiredVelocity = getCenterPosition().sub(target);
 		
-		float distance = (float) (STEP_SPEED * getMovementSpeed() * Gdx.graphics.getDeltaTime());
-		distance *= rand.nextFloat(); // change the speed randomly to simulate natural movement
+		// arrival pattern (slowing down when entering the slow-down-radius)
+		float slowingRadius = 150;
+		float distance 		= desiredVelocity.len();
+		if (distance < slowingRadius) {
+			desiredVelocity.nor().scl(MAX_MOVE_SPEED).scl(distance/slowingRadius);
+		} else {
+			desiredVelocity.nor().scl(MAX_MOVE_SPEED);
+		}
 		
-		setRotation(getDirection().angle() - 90);
-		float directionX = (float) Math.sin(Math.toRadians(getRotation()));
-		float directionY = (float) Math.cos(Math.toRadians(getRotation()));
+		steering = desiredVelocity.sub(currentVelocity).nor().scl(MAX_ROTATION_SPEED);
 		
-		this.setX(this.getX() - directionX * distance);
-		this.setY(this.getY() + directionY * distance);
+		return steering;
+	}
+	
+	private Vector2 getFleeFrom(Vector2 hunter) {
+		centerPosition.set(getCenterPosition());
+				
+		// flee pattern (move away from target)
+		desiredVelocity = getCenterPosition().sub(hunter);
 		
-		if (this.getX() >= HerdSimulation.WINDOW_X - this.getWidth())
-			this.setX(HerdSimulation.WINDOW_X - this.getWidth());
-		if (this.getX() <= 0)
-			this.setX(0);
-		if (this.getY() >= HerdSimulation.WINDOW_Y - this.getHeight())
-			this.setY(HerdSimulation.WINDOW_Y - this.getHeight());
-		if (this.getY() <= 0)
-			this.setY(0);
+		steering = desiredVelocity.sub(currentVelocity).nor().scl(MAX_ROTATION_SPEED);
+		
+		return steering;
+	}
+	
+	private void addSteering (Vector2 steering) {
+		currentVelocity.add(steering);
+		centerPosition.add(currentVelocity);
+		
+		setPosition(centerPosition.x - getWidth()/2, centerPosition.y - getHeight()/2);
+		setRotation(currentVelocity.angle() - 90);
+		
+		// avoid sheep to get out of screen
+		if (getCenterPosition().x >= HerdSimulation.WINDOW_X) setX(HerdSimulation.WINDOW_X - getWidth()/2);
+		if (getCenterPosition().x <= 0) setX(0 - getWidth()/2);
+		if (getCenterPosition().y >= HerdSimulation.WINDOW_Y) setY(HerdSimulation.WINDOW_Y - getHeight()/2);
+		if (getCenterPosition().y <= 0) setY(0 - getHeight()/2);
 	}
 	
 	/**
@@ -93,19 +154,27 @@ public class Sheep extends Sprite {
 	 */
 	private void drawProperties(SpriteBatch batch, ShapeRenderer shapeRen) {
 		
-		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
-		
-		DecimalFormat df = new DecimalFormat("##.###");
-		String speed = df.format(getMovementSpeed());
-		String angle = df.format(getRotation());
-		font.draw(batch, "spd " + speed, getX(), getY());
-		font.draw(batch, "rot " + angle, getX(), getY() - 15);
-		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
+		font.draw(batch, String.valueOf(currentVelocity.len()), getX() - getWidth()/2, getY() - getHeight()/2);
 		
 		shapeRen.setColor(0, 0, 1, 0.5f);
-		Vector2 direction = getDirection().scl(100.0f);
-		shapeRen.line(getX() + getWidth()/2, getY() + getHeight()/2,
-				getX() + direction.x + getWidth()/2, getY() + direction.y + getHeight()/2);
+		shapeRen.line(centerPosition, dog.getCenterPosition());
+		
+		shapeRen.setColor(1, 0, 0, 0.5f);
+		shapeRen.line(getCenterPosition(), getCenterPosition().add(new Vector2(currentVelocity).scl(250)));
+		
+//		batch.draw(pixmapCircleTexture, getX() - Sheep.SIGHT_DISTANCE/2, getY() - Sheep.SIGHT_DISTANCE/2);
+//		
+//		DecimalFormat df = new DecimalFormat("##.###");
+//		String speed = df.format(getMovementSpeed());
+//		String angle = df.format(getRotation());
+//		font.draw(batch, "spd " + speed, getX(), getY());
+//		font.draw(batch, "rot " + angle, getX(), getY() - 15);
+//		font.draw(batch, "nbs" + sheepsAround(SIGHT_DISTANCE).size, getX(), getY() - 30);
+//		
+//		shapeRen.setColor(0, 0, 1, 0.5f);
+//		Vector2 direction = getDirection().scl(100.0f);
+//		shapeRen.line(getX() + getWidth()/2, getY() + getHeight()/2,
+//				getX() + direction.x + getWidth()/2, getY() + direction.y + getHeight()/2);
 	}
 	
 	/**
@@ -127,7 +196,6 @@ public class Sheep extends Sprite {
 	 * @return the direction
 	 */
 	private Vector2 getDirection() {
-		// TODO: The calculation of the direction seems not to work due to crappy vector-calculation		
 		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
 		
 		Vector2 direction = new Vector2(0,0);
@@ -195,6 +263,8 @@ public class Sheep extends Sprite {
 			sheepSound.play();
 		}
 	}
+	
+	
 	
 //	private Array<Sheep> sheepInNearDistance() {
 //	Array<Sheep> result = new Array<Sheep>();

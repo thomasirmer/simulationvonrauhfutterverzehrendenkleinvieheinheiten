@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import de.rub.SVRVKVE.animals.Dog;
@@ -26,7 +27,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	// window size
 	public static final int WINDOW_X = 1280;
 	public static final int WINDOW_Y = 720;
-
+	
 	// graphics
 	SpriteBatch batch;
 	OrthographicCamera camera;
@@ -37,7 +38,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	Array<Sheep> sheepHerd;
 	int sheepWidth 		= 46;
 	int sheepHeigth 	= 63;
-	int numberOfSheeps 	= 64;
+	int numberOfSheeps 	= 2;
 	
 	// everything about the dog
 	Dog dog;
