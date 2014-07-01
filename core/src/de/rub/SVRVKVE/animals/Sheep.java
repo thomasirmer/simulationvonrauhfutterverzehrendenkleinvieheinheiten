@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.Array;
 import de.rub.SVRVKVE.simulation.HerdSimulation;
 import de.rub.fuzzy.Catalog;
 
-public class Sheep extends Sprite {
+public class Sheep extends GameObject{
 
 	private static final Texture image 	  = new Texture(Gdx.files.internal("sheepWithEyes.png"));
 	private static final Sound sheepSound = Gdx.audio.newSound(Gdx.files.internal("sheepSound.mp3")); 
@@ -37,15 +37,12 @@ public class Sheep extends Sprite {
 	private Vector2 centerPosition;
 	private Vector2 currentVelocity;
 	private Vector2 desiredVelocity;
-	private Vector2 steering;
+	private Vector2 steering;	
 	
-	private Random rand2;
 	int moveCount = 0;
 
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
-		super(image);
-		
-		rand2 = new Random(0);
+		super(image);		
 		
 		this.setPosition(x, y);
 		this.setSize(width, height);
@@ -75,46 +72,30 @@ public class Sheep extends Sprite {
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
 		//move();
 	
-		if (moveCount <= 0 && rand.nextInt(100) == 1) {
-			moveCount = 50;
-		}
-		if (moveCount > 0) {
-			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
-			Vector2 sheepSteering = getSteeringTowards(getHerdDirection(herd));
+//		if (moveCount <= 0 && rand.nextInt(100) == 1) {
+//			moveCount = 50;
+//		}
+//		if (moveCount > 0) {
+//			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
+			Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
+			
+			
+			
 			//addSteering(dogSteering);
-			addSteering(sheepSteering);
+			float angle =convertAngleForFuzzy(getRotation()-directionToHerd.angle());					
+					
+			Catalog.set("DirectionToHerd", angle);
+			Catalog.evalAllRules();
+			float rotation = (float) Catalog.get("RotationRate");
+			
+//			addSteering(rotation);
+			rotate(rotation);
 			moveCount--;
-		}
-		
-		/*
-		// *** calculate steering with fuzzy rules
-		// angle to target
-		Vector2 norCurrentVelocity = new Vector2(currentVelocity).nor();
-		Vector2 norDesiredVelocity = new Vector2(desiredVelocity).nor();
-		
-		double angle = (Math.acos(norCurrentVelocity.dot(norDesiredVelocity)) / (2 * Math.PI)) * 360;
-		
-		 */
+//		}
 
 		draw(batch);
 		//drawProperties(batch, shapeRen);
 		//playSound();
-	}
-	
-	private Vector2 getHerdDirection(Array<Sheep> targets) {
-		centerPosition.set(getCenterPosition());
-		
-		Vector2 currentCenter;
-		Vector2 direction = new Vector2(0,0);
-		
-		for (Sheep sheep : targets) {
-			currentCenter = getCenterPosition();
-			currentCenter.sub(sheep.centerPosition);
-			direction.add(currentCenter);
-			direction.scl(1/targets.size);
-		}
-		
-		return direction;
 	}
 	
 	private Vector2 getSteeringTowards(Vector2 target) {
@@ -280,11 +261,7 @@ public class Sheep extends Sprite {
 			sheepSound.play();
 		}
 	}
-	
-	public Vector2 getCenterPosition() {
-		return new Vector2(getX() + getWidth()/2, getY() + getHeight()/2);
-	}
-	
+		
 //	private Array<Sheep> sheepInNearDistance() {
 //	Array<Sheep> result = new Array<Sheep>();
 //	for (Sheep neighbour : this.herd) {

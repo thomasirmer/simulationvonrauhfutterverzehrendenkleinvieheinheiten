@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 
-public class Dog extends Sprite {
+public class Dog extends GameObject {
 
 	boolean moveFwrd = false, moveBwrd, rotateLeft = false, rotateRight = false;
 	
