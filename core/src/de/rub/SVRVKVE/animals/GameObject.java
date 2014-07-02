@@ -39,24 +39,9 @@ public class GameObject extends Sprite {
 		double acos  = Math.toDegrees(Math.acos(cos));
 		double asin	 = Math.toDegrees(Math.asin(sin));
 		
-		/* coordinate system:
-		 *    |
-		 *  2 | 1
-		 * ---x---
-		 *  3 | 4
-		 *    |
-		 */
+		if (asin >= 0 && asin <= 90) acos = -acos;
 		
-		// 1 + 4
-		if (asin <= 0 && asin >= -90) {
-			System.out.println("angle: " + acos);
-			return acos;
-		} 
-		// 2 + 3
-		else { // (asin >= 0 && asin <= 90)
-			System.out.println("angle: " + -acos);
-			return -acos;
-		}
+		return acos;
 	}
 
 	/**
