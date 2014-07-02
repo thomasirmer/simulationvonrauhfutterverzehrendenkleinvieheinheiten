@@ -28,7 +28,7 @@ public class GameObject extends Sprite {
 			return 0;
 	}
 	
-	protected double getAngleToTarget(Vector2 ownDirection, Vector2 targetDirection) {
+	protected float getAngleToTarget(Vector2 ownDirection, Vector2 targetDirection) {
 		Vector2 norOwnDirection    = new Vector2(ownDirection).nor();
 		Vector2 norTargetDirection = new Vector2(targetDirection).nor();
 		
@@ -41,7 +41,7 @@ public class GameObject extends Sprite {
 		
 		if (asin >= 0 && asin <= 90) acos = -acos;
 		
-		return acos;
+		return (float) acos;
 	}
 
 	/**

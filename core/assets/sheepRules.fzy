@@ -1,30 +1,65 @@
+# Flee behavior ------------------------------------------------------------------------------------------
+
 +	DirectionToDog
 -	left		-150,	-150,	-150,     0
 -	centerLeft	 -60,	 -30,	   0,     0
 -	centerRight	   0,	   0,	  30,    60
 -	right		   0,	 150,	 150,	150
 
-+	RotationRate
++	FleeRotationRate
 -	slowL		 -0.8,	-0.4,	   0,	   0
 -	fastL		   -1,	  -1,	-0.6,	-0.2
 -	slowR		    0,     0,    0.4,    0.8
 -	fastR         0.2,   0.6,      1,      1
 
-if DirectionToDog = left        then RotationRate = slowR
-if DirectionToDog = centerLeft  then RotationRate = fastR
-if DirectionToDog = right       then RotationRate = slowL
-if DirectionToDog = centerRight then RotationRate = fastL
+if DirectionToDog = left        then FleeRotationRate = slowR
+if DirectionToDog = centerLeft  then FleeRotationRate = fastR
+if DirectionToDog = right       then FleeRotationRate = slowL
+if DirectionToDog = centerRight then FleeRotationRate = fastL
 
 +	DistanceToDog
 -	close		-100,	  0,	  0,	100	
 -	medium		   0,	100,	100,	200
 -	far			 100,	200,	200,	300
 
-+	SpeedRate
++	FleeSpeedRate
 -	slow			0,	   0,	   0,	 0.5
 -	medium		 0.25,	 0.5,	 0.5,	0.75
 -	fast		  0.5,	   1,	   1,	   1
 
-if DistanceToDog = close	then SpeedRate = fast
-if DistanceToDog = medium	then SpeedRate = medium
-if DistanceToDog = far		then SpeedRate = slow
+if DistanceToDog = close	then FleeSpeedRate = fast
+if DistanceToDog = medium	then FleeSpeedRate = medium
+if DistanceToDog = far		then FleeSpeedRate = slow
+
+# Seek behavior ------------------------------------------------------------------------------------------
+
++	DirectionToHerd
+-	left		-180,	-180,	-180,     0
+-	centerLeft	 -60,	 -30,	   0,     0
+-	centerRight	   0,	   0,	  30,    60
+-	right		   0,	 180,	 180,	180
+
++	SeekRotationRate
+-	slowL		 -0.8,	-0.4,	   0,	   0
+-	fastL		   -1,	  -1,	-0.6,	-0.2
+-	slowR		    0,     0,    0.4,    0.8
+-	fastR         0.2,   0.6,      1,      1
+
+if DirectionToHerd = left        then SeekRotationRate = fastL
+if DirectionToHerd = centerLeft  then SeekRotationRate = slowL
+if DirectionToHerd = right       then SeekRotationRate = fastR
+if DirectionToHerd = centerRight then SeekRotationRate = slowR
+
++	DistanceToHerd
+-	close		-200,	  0,	  0,	200	
+-	medium		   0,	200,	200,	400
+-	far			 200,	400,	400,	600
+
++	SeekSpeedRate
+-	slow			0,	   0,	   0,	 0.5
+-	medium		 0.25,	 0.5,	 0.5,	0.75
+-	fast		  0.5,	   1,	   1,	   1
+
+if DirectionToHerd = close	then SeekSpeedRate = slow
+if DirectionToHerd = medium	then SeekSpeedRate = medium
+if DirectionToHerd = far	then SeekSpeedRate = fast

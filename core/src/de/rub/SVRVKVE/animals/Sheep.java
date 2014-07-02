@@ -40,10 +40,16 @@ public class Sheep extends GameObject{
 	private Vector2 steering;
 	
 	// flee from dog
-	private Vector2 fleeVector = new Vector2(1, 1);
-	double angleToDog;
-	float fleeRotation;
-	double fleeSpeed;
+	private Vector2 fleeDirection;
+	private float angleToDog;
+	private float fleeRotation;
+	private float fleeSpeed;
+	
+	// seek herd
+	private Vector2 seekDirection;
+	private float angleToHerd;
+	private float seekRotation;
+	private float seekSpeed;
 	
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);		
@@ -65,6 +71,9 @@ public class Sheep extends GameObject{
         // initialize movement parameters
         centerPosition	= getCenterPosition();
         currentVelocity = new Vector2(0,0);
+        
+        fleeDirection = new Vector2( 1, 1);
+        seekDirection = new Vector2(-1,-1);
    	}
 	
 	/**
@@ -81,23 +90,27 @@ public class Sheep extends GameObject{
 		angleToDog = getAngleToTarget(currentVelocity, directionToDog);
 		double distanceToDog = getDistanceBetween(getCenterPosition(), dog.getCenterPosition());
 		
+		// calculate herds distance and angle
+		// TODO herd behavior
+		angleToHerd = getAngleToTarget(getCenterPosition(), herd);
+		
 		// set fuzzy inputs
-		Catalog.set("DirectionToDog", angleToDog);
-		Catalog.set("DistanceToDog", distanceToDog);
+		Catalog.set("DirectionToDog", (double) angleToDog);
+		Catalog.set("DistanceToDog" , (double) distanceToDog);
 		
 		// calculate fuzzy 
 		Catalog.evalAllRules();
 		
 		// get fuzzy outputs
-		fleeRotation = (float) Catalog.get("RotationRate");
-		fleeSpeed = Catalog.get("SpeedRate");
+		fleeRotation = (float) Catalog.get("FleeRotationRate");
+		fleeSpeed 	 = (float) Catalog.get("FleeSpeedRate");
 		
 		// caculate flee vector
-		fleeVector.rotate(-fleeRotation * 2);
-		fleeVector.nor().scl(1 + (float) fleeSpeed * 10);
+		fleeDirection.rotate(-fleeRotation * 2);
+		fleeDirection.nor().scl(1 + (float) fleeSpeed * 10);
 
 		// add flee vector to current velocity
-		currentVelocity.nor().add(fleeVector.cpy().sub(fleeVector.nor())).scl(MAX_MOVE_SPEED);
+		currentVelocity.nor().add(fleeDirection.cpy().sub(fleeDirection.nor())).scl(MAX_MOVE_SPEED);
 		
 
 		setRotation(currentVelocity.angle() - 90);
