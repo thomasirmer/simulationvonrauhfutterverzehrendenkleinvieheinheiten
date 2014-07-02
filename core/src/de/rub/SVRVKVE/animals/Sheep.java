@@ -32,7 +32,7 @@ public class Sheep extends GameObject{
 	
 	public static final int SIGHT_DISTANCE 		 	= 50;
 	public static final float MAX_MOVE_SPEED  		= 0.5f;
-	public static final float MAX_ROTATION_SPEED 	= 0.01f;
+	public static final float MAX_ROTATION_SPEED 	= 0.1f;
 	
 	private Vector2 centerPosition;
 	private Vector2 currentVelocity;
@@ -60,9 +60,9 @@ public class Sheep extends GameObject{
         
         // initialize movement parameters
         centerPosition	= getCenterPosition();
-        currentVelocity = new Vector2(0, 0);
-        desiredVelocity = new Vector2(0, 0);
-        steering		= new Vector2(0, 0);
+        currentVelocity = new Vector2(0.1f, 0.1f);
+//        desiredVelocity = new Vector2(0, 0);
+//        steering		= new Vector2(0, 0);
    	}
 	
 	/**
@@ -77,20 +77,26 @@ public class Sheep extends GameObject{
 //		}
 //		if (moveCount > 0) {
 //			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
-			Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
+			//Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
 			
 			Array<GameObject> dogArray = new Array<GameObject>();
 			dogArray.add(dog);
 			Vector2 directionToDog = getDirectionToGObjects(dogArray);
 			
 			//addSteering(dogSteering);
-			double angle = getAngleToTarget(new Vector2(1, 1), directionToDog);
+			double angle = getAngleToTarget(currentVelocity, directionToDog);
 					
 			Catalog.set("DirectionToDog", angle);
 			Catalog.evalAllRules();
 			float rotation = (float) Catalog.get("RotationRate");
 			
-			//System.out.println("angle: " + angle + " rotation: " + rotation);
+			currentVelocity.rotate(-rotation);
+			setRotation(currentVelocity.angle() - 90);
+			centerPosition = getCenterPosition();
+			centerPosition.add(currentVelocity);
+			setPosition(centerPosition.x - getWidth()/2, centerPosition.y - getHeight()/2);
+			
+			System.out.println("angle: " + angle + " rotation: " + rotation);
 			
 //			addSteering(rotation);
 			//rotate(rotation);

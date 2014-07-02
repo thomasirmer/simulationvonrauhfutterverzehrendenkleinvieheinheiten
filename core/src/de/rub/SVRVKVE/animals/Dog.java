@@ -16,8 +16,8 @@ public class Dog extends GameObject {
 	
 	float rotation = 0, moveDistance = 0;
 
-	public final static int MOVESPEED = 500;
-	public final static int ROTATIONSPEED = 300;
+	public final static int MOVESPEED = 300;
+	public final static int ROTATIONSPEED = 200;
 
 	public static final Texture image = new Texture(
 			Gdx.files.internal("dogTopView.png"));
