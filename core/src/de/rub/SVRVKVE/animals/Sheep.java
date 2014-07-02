@@ -31,16 +31,20 @@ public class Sheep extends GameObject{
 	Texture pixmapCircleTexture;
 	
 	public static final int SIGHT_DISTANCE 		 	= 50;
-	public static final float MAX_MOVE_SPEED  		= 0.5f;
+	public static final float MAX_MOVE_SPEED  		= 0.1f;
 	public static final float MAX_ROTATION_SPEED 	= 0.1f;
 	
 	private Vector2 centerPosition;
 	private Vector2 currentVelocity;
 	private Vector2 desiredVelocity;
-	private Vector2 steering;	
+	private Vector2 steering;
 	
-	int moveCount = 0;
-
+	// flee from dog
+	private Vector2 fleeVector = new Vector2(1, 1);
+	double angleToDog;
+	float fleeRotation;
+	double fleeSpeed;
+	
 	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
 		super(image);		
 		
@@ -60,9 +64,7 @@ public class Sheep extends GameObject{
         
         // initialize movement parameters
         centerPosition	= getCenterPosition();
-        currentVelocity = new Vector2(0.1f, 0.1f);
-//        desiredVelocity = new Vector2(0, 0);
-//        steering		= new Vector2(0, 0);
+        currentVelocity = new Vector2(0,0);
    	}
 	
 	/**
@@ -70,44 +72,59 @@ public class Sheep extends GameObject{
 	 * @param batch SpriteBatch where the sheep should be drawn
 	 */
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
-			
-			Array<GameObject> dogArray = new Array<GameObject>();
-			dogArray.add(dog);
-			Vector2 directionToDog = getDirectionToGObjects(dogArray);
-			
-			double angle = 0.0f;
-			float rotation = 0.0f;
-			
-			if ((distanceBetween(getCenterPosition(), dog.getCenterPosition()) <= 150)) {
-				angle = getAngleToTarget(currentVelocity, directionToDog);
-				Catalog.set("DirectionToDog", angle);
-				Catalog.evalAllRules();
-				rotation = (float) Catalog.get("RotationRate");
-				currentVelocity.rotate(-rotation);
-			}
-			
-			setRotation(currentVelocity.angle() - 90);
-			centerPosition = getCenterPosition();
-			centerPosition.add(currentVelocity);
-			setPosition(centerPosition.x - getWidth()/2, centerPosition.y - getHeight()/2);
-			
-//			System.out.println("angle: " + angle + " rotation: " + rotation);
-			
-			// avoid sheep to get out of screen
-			if (getCenterPosition().x >= HerdSimulation.WINDOW_X) setX(HerdSimulation.WINDOW_X - getWidth()/2);
-			if (getCenterPosition().x <= 0) setX(0 - getWidth()/2);
-			if (getCenterPosition().y >= HerdSimulation.WINDOW_Y) setY(HerdSimulation.WINDOW_Y - getHeight()/2);
-			if (getCenterPosition().y <= 0) setY(0 - getHeight()/2);
-			
-//			addSteering(rotation);
-			//rotate(rotation);
-//		}
+
+		Array<GameObject> dogArray = new Array<GameObject>();
+		dogArray.add(dog);
+		Vector2 directionToDog = getDirectionToGObjects(dogArray);
+
+		// calculate dogs distance and angle
+		angleToDog = getAngleToTarget(currentVelocity, directionToDog);
+		double distanceToDog = getDistanceBetween(getCenterPosition(), dog.getCenterPosition());
+		
+		// set fuzzy inputs
+		Catalog.set("DirectionToDog", angleToDog);
+		Catalog.set("DistanceToDog", distanceToDog);
+		
+		// calculate fuzzy 
+		Catalog.evalAllRules();
+		
+		// get fuzzy outputs
+		fleeRotation = (float) Catalog.get("RotationRate");
+		fleeSpeed = Catalog.get("SpeedRate");
+		
+		// caculate flee vector
+		fleeVector.rotate(-fleeRotation * 2);
+		fleeVector.nor().scl(1 + (float) fleeSpeed * 10);
+
+		// add flee vector to current velocity
+		currentVelocity.nor().add(fleeVector.cpy().sub(fleeVector.nor())).scl(MAX_MOVE_SPEED);
+		
+
+		setRotation(currentVelocity.angle() - 90);
+		centerPosition = getCenterPosition();
+		centerPosition.add(currentVelocity);
+		setPosition(centerPosition.x - getWidth() / 2, centerPosition.y
+				- getHeight() / 2);
+
+		// avoid sheep to get out of screen
+		if (getCenterPosition().x >= HerdSimulation.WINDOW_X)
+			setX(HerdSimulation.WINDOW_X - getWidth() / 2);
+		if (getCenterPosition().x <= 0)
+			setX(0 - getWidth() / 2);
+		if (getCenterPosition().y >= HerdSimulation.WINDOW_Y)
+			setY(HerdSimulation.WINDOW_Y - getHeight() / 2);
+		if (getCenterPosition().y <= 0)
+			setY(0 - getHeight() / 2);
+
+		// addSteering(rotation);
+		// rotate(rotation);
+		// }
 
 		draw(batch);
-		//drawProperties(batch, shapeRen);
-		//playSound();
+		// drawProperties(batch, shapeRen);
+		// playSound();
 	}
-	
+
 	private Vector2 getSteeringTowards(Vector2 target) {
 		centerPosition.set(getCenterPosition());
 
@@ -221,7 +238,7 @@ public class Sheep extends GameObject{
 	 * @param target
 	 * @return distance
 	 */
-	private double distanceBetween(Vector2 position1, Vector2 position2) {
+	private double getDistanceBetween(Vector2 position1, Vector2 position2) {
 		Vector2 posToPos = position1.cpy().sub(position2);
 		return posToPos.len();
 	}

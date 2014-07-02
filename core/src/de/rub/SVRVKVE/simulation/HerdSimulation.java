@@ -38,7 +38,7 @@ public class HerdSimulation extends ApplicationAdapter {
 	Array<Sheep> sheepHerd;
 	int sheepWidth 		= 46;
 	int sheepHeigth 	= 63;
-	int numberOfSheeps 	= 10;
+	int numberOfSheeps 	= 250;
 	
 	// everything about the dog
 	Dog dog;
@@ -72,6 +72,8 @@ public class HerdSimulation extends ApplicationAdapter {
 			sheepHerd.add(new Sheep(sheepHerd, dog,
 						  rand.nextInt(WINDOW_X),
 						  rand.nextInt(WINDOW_Y),
+//						  WINDOW_X / 2,
+//						  WINDOW_Y / 2,
 						  sheepWidth,
 						  sheepHeigth));
 		}

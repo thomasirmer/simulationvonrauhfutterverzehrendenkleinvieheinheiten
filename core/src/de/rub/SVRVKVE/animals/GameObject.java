@@ -52,7 +52,6 @@ public class GameObject extends Sprite {
 	 *            Array of GameObjects
 	 * @return Normalized Vector to targets
 	 */
-
 	protected Vector2 getDirectionToGObjects(Array<GameObject> targets) {
 		Vector2 currentCenter;
 		Vector2 direction = new Vector2(0, 0);

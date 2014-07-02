@@ -1,8 +1,8 @@
 +	DirectionToDog
--	left		-120,	-120,	-120,     0
+-	left		-150,	-150,	-150,     0
 -	centerLeft	 -60,	 -30,	   0,     0
 -	centerRight	   0,	   0,	  30,    60
--	right		   0,	 120,	 120,	120
+-	right		   0,	 150,	 150,	150
 
 +	RotationRate
 -	slowL		 -0.8,	-0.4,	   0,	   0
@@ -14,3 +14,17 @@ if DirectionToDog = left        then RotationRate = slowR
 if DirectionToDog = centerLeft  then RotationRate = fastR
 if DirectionToDog = right       then RotationRate = slowL
 if DirectionToDog = centerRight then RotationRate = fastL
+
++	DistanceToDog
+-	close		-100,	  0,	  0,	100	
+-	medium		   0,	100,	100,	200
+-	far			 100,	200,	200,	300
+
++	SpeedRate
+-	slow			0,	   0,	   0,	 0.5
+-	medium		 0.25,	 0.5,	 0.5,	0.75
+-	fast		  0.5,	   1,	   1,	   1
+
+if DistanceToDog = close	then SpeedRate = fast
+if DistanceToDog = medium	then SpeedRate = medium
+if DistanceToDog = far		then SpeedRate = slow
