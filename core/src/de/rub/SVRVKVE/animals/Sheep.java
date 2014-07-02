@@ -70,33 +70,34 @@ public class Sheep extends GameObject{
 	 * @param batch SpriteBatch where the sheep should be drawn
 	 */
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
-		//move();
-	
-//		if (moveCount <= 0 && rand.nextInt(100) == 1) {
-//			moveCount = 50;
-//		}
-//		if (moveCount > 0) {
-//			Vector2 dogSteering = getFleeFrom(dog.getCenterPosition());
-			//Vector2 directionToHerd = getSteeringTowards(getDirectionToGObjects(new Array<GameObject>(herd)));
 			
 			Array<GameObject> dogArray = new Array<GameObject>();
 			dogArray.add(dog);
 			Vector2 directionToDog = getDirectionToGObjects(dogArray);
 			
-			//addSteering(dogSteering);
-			double angle = getAngleToTarget(currentVelocity, directionToDog);
-					
-			Catalog.set("DirectionToDog", angle);
-			Catalog.evalAllRules();
-			float rotation = (float) Catalog.get("RotationRate");
+			double angle = 0.0f;
+			float rotation = 0.0f;
 			
-			currentVelocity.rotate(-rotation);
+			if ((distanceBetween(getCenterPosition(), dog.getCenterPosition()) <= 150)) {
+				angle = getAngleToTarget(currentVelocity, directionToDog);
+				Catalog.set("DirectionToDog", angle);
+				Catalog.evalAllRules();
+				rotation = (float) Catalog.get("RotationRate");
+				currentVelocity.rotate(-rotation);
+			}
+			
 			setRotation(currentVelocity.angle() - 90);
 			centerPosition = getCenterPosition();
 			centerPosition.add(currentVelocity);
 			setPosition(centerPosition.x - getWidth()/2, centerPosition.y - getHeight()/2);
 			
-			System.out.println("angle: " + angle + " rotation: " + rotation);
+//			System.out.println("angle: " + angle + " rotation: " + rotation);
+			
+			// avoid sheep to get out of screen
+			if (getCenterPosition().x >= HerdSimulation.WINDOW_X) setX(HerdSimulation.WINDOW_X - getWidth()/2);
+			if (getCenterPosition().x <= 0) setX(0 - getWidth()/2);
+			if (getCenterPosition().y >= HerdSimulation.WINDOW_Y) setY(HerdSimulation.WINDOW_Y - getHeight()/2);
+			if (getCenterPosition().y <= 0) setY(0 - getHeight()/2);
 			
 //			addSteering(rotation);
 			//rotate(rotation);
@@ -147,12 +148,6 @@ public class Sheep extends GameObject{
 		
 		setPosition(centerPosition.x - getWidth()/2, centerPosition.y - getHeight()/2);
 		setRotation(currentVelocity.angle() - 90);
-		
-		// avoid sheep to get out of screen
-		if (getCenterPosition().x >= HerdSimulation.WINDOW_X) setX(HerdSimulation.WINDOW_X - getWidth()/2);
-		if (getCenterPosition().x <= 0) setX(0 - getWidth()/2);
-		if (getCenterPosition().y >= HerdSimulation.WINDOW_Y) setY(HerdSimulation.WINDOW_Y - getHeight()/2);
-		if (getCenterPosition().y <= 0) setY(0 - getHeight()/2);
 	}
 	
 	/**
@@ -190,12 +185,13 @@ public class Sheep extends GameObject{
 	 * @return the sheeps within sight
 	 */
 	private Array<Sheep> sheepsAround(int sight) {
-		Array<Sheep> result = new Array<Sheep>();
-		for (Sheep neighbour : this.herd) {
-			if (distanceTo(neighbour) < sight && distanceTo(neighbour) > 0)
-				result.add(neighbour);
-		}
-		return result;
+//		Array<Sheep> result = new Array<Sheep>();
+//		for (Sheep neighbour : this.herd) {
+//			if (distanceTo(neighbour) < sight && distanceTo(neighbour) > 0)
+//				result.add(neighbour);
+//		}
+//		return result;
+		return null;
 	}
 	
 	/**
@@ -203,20 +199,21 @@ public class Sheep extends GameObject{
 	 * @return the direction
 	 */
 	private Vector2 getDirection() {
-		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
-		
-		Vector2 direction = new Vector2(0,0);
-		
-		// get direction based on other sheeps
-		for (Sheep neighbour : neighbours) {
-			direction.add(directionTo(neighbour).nor().scl((float) (1 / distanceTo(neighbour))));
-		}
-		direction.nor();
-		
-		// get direction based on doggy doggy dog
-		direction.sub(directionTo(dog).nor());
-		
-		return direction.nor();
+//		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE * 4);
+//		
+//		Vector2 direction = new Vector2(0,0);
+//		
+//		// get direction based on other sheeps
+//		for (Sheep neighbour : neighbours) {
+//			direction.add(directionTo(neighbour).nor().scl((float) (1 / distanceTo(neighbour))));
+//		}
+//		direction.nor();
+//		
+//		// get direction based on doggy doggy dog
+//		direction.sub(directionTo(dog).nor());
+//		
+//		return direction.nor();
+		return null;
 	}
 	
 	/**
@@ -224,9 +221,9 @@ public class Sheep extends GameObject{
 	 * @param target
 	 * @return distance
 	 */
-	private double distanceTo(Sprite target) {
-		return Math.sqrt(Math.pow(Math.abs(target.getX() + target.getWidth()/2 - this.getX() + getWidth()/2), 2)
-				+ Math.pow(Math.abs(target.getY() + target.getHeight()/2 - this.getY() + getHeight()/2), 2));
+	private double distanceBetween(Vector2 position1, Vector2 position2) {
+		Vector2 posToPos = position1.cpy().sub(position2);
+		return posToPos.len();
 	}
 
 	/**
@@ -245,21 +242,22 @@ public class Sheep extends GameObject{
 	 */
 	private double getMovementSpeed() {
 		
-		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
-		double excitation = 0.0;
-		
-		for (Sheep neighbour : neighbours) {
-			excitation += distanceTo(neighbour) / neighbours.size;
-		}
-		
-		if (neighbours.size == 0) {
-			excitation = 35;
-		}
-		
-		Catalog.set("Excitation", excitation);
-		Catalog.evalAllRules();
-		double movement = Catalog.get("Movement");
-		return movement;
+//		Array<Sheep> neighbours = sheepsAround(SIGHT_DISTANCE);
+//		double excitation = 0.0;
+//		
+//		for (Sheep neighbour : neighbours) {
+//			excitation += distanceTo(neighbour) / neighbours.size;
+//		}
+//		
+//		if (neighbours.size == 0) {
+//			excitation = 35;
+//		}
+//		
+//		Catalog.set("Excitation", excitation);
+//		Catalog.evalAllRules();
+//		double movement = Catalog.get("Movement");
+//		return movement;
+		return 0;
 	}
 	
 	/**
