@@ -70,8 +70,10 @@ public class HerdSimulation extends ApplicationAdapter {
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
 			sheepHerd.add(new Sheep(sheepHerd, dog,
-						  rand.nextInt(WINDOW_X),
-						  rand.nextInt(WINDOW_Y),
+						  //rand.nextInt(WINDOW_X),
+						  //rand.nextInt(WINDOW_Y),
+						  WINDOW_X / 2, // TODO: JUST FOR TEST PORPOSES
+						  WINDOW_Y / 2, // TODO: JUST FOR TEST PORPOSES
 						  sheepWidth,
 						  sheepHeigth));
 		}

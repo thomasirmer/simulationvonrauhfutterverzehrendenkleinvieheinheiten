@@ -32,13 +32,31 @@ public class GameObject extends Sprite {
 		Vector2 norOwnDirection    = new Vector2(ownDirection).nor();
 		Vector2 norTargetDirection = new Vector2(targetDirection).nor();
 		
-		double cos   = norOwnDirection.dot(norTargetDirection);
-		double rad   = Math.acos(cos);
-		double angle = Math.toDegrees(rad);
+		// dot / cross both return cos / sin because vectors are normalized!
+		double cos   = norOwnDirection.dot(norTargetDirection); // dot product
+		double sin	 = norOwnDirection.crs(norTargetDirection); // cross product
 		
-		System.out.println("cos:" + cos + " rad: " + rad + " ang: " + angle);
+		double acos  = Math.toDegrees(Math.acos(cos));
+		double asin	 = Math.toDegrees(Math.asin(sin));
 		
-		return angle;
+		/* coordinate system:
+		 *    |
+		 *  2 | 1
+		 * ---x---
+		 *  3 | 4
+		 *    |
+		 */
+		
+		// 1 + 4
+		if (asin <= 0 && asin >= -90) {
+			System.out.println("angle: " + acos);
+			return acos;
+		} 
+		// 2 + 3
+		else { // (asin >= 0 && asin <= 90)
+			System.out.println("angle: " + -acos);
+			return -acos;
+		}
 	}
 
 	/**

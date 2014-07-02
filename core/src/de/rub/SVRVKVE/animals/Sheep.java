@@ -84,13 +84,13 @@ public class Sheep extends GameObject{
 			Vector2 directionToDog = getDirectionToGObjects(dogArray);
 			
 			//addSteering(dogSteering);
-			double angle = getAngleToTarget(new Vector2(0, 1), directionToDog);
+			double angle = getAngleToTarget(new Vector2(1, 1), directionToDog);
 					
 			Catalog.set("DirectionToDog", angle);
 			Catalog.evalAllRules();
 			float rotation = (float) Catalog.get("RotationRate");
 			
-			System.out.println("angle: " + angle + " rotation: " + rotation);
+			//System.out.println("angle: " + angle + " rotation: " + rotation);
 			
 //			addSteering(rotation);
 			//rotate(rotation);
