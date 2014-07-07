@@ -67,6 +67,7 @@ public class HerdSimulation extends ApplicationAdapter {
 		dog = new Dog(dogStartPosition,dogHeight, dogWidth);
 		
 		// initialize sheep herd
+		int seed = 0;
 		sheepHerd = new Array<Sheep>(numberOfSheeps);
 		for (int i = 0; i < numberOfSheeps; i++) {
 			sheepHerd.add(new Sheep(sheepHerd, dog,
@@ -75,7 +76,9 @@ public class HerdSimulation extends ApplicationAdapter {
 //						  WINDOW_X / 2,
 //						  WINDOW_Y / 2,
 						  sheepWidth,
-						  sheepHeigth));
+						  sheepHeigth,
+						  seed));
+			seed++;
 		}
 		
 		// utilities

@@ -7,10 +7,10 @@
 -	right		   0,	 150,	 150,	150
 
 +	FleeRotationRate
--	slowL		 -0.8,	-0.4,	   0,	   0
--	fastL		   -1,	  -1,	-0.6,	-0.2
--	slowR		    0,     0,    0.4,    0.8
--	fastR         0.2,   0.6,      1,      1
+-	slowL		 -0.5,	   0,	   0,	 0.5
+-	fastL		   -1,	  -1,	  -1,	   0
+-	slowR		 -0.5,	   0,	   0,	 0.5
+-	fastR           0,     1,      1,      1
 
 if DirectionToDog = left        then FleeRotationRate = slowR
 if DirectionToDog = centerLeft  then FleeRotationRate = fastR
@@ -56,10 +56,10 @@ if DirectionToHerd = centerRight then SeekRotationRate = slowR
 -	far			 200,	400,	400,	600
 
 +	SeekSpeedRate
--	slow			0,	   0,	   0,	 0.5
--	medium		 0.25,	 0.5,	 0.5,	0.75
--	fast		  0.5,	   1,	   1,	   1
+-	slow			0,	   0,	   0,	 0.15
+-	medium		 0.1,	 0.5,	 0.5,	0.75
+-	fast		  0.15,	   1,	   1,	   1
 
-if DirectionToHerd = close	then SeekSpeedRate = slow
-if DirectionToHerd = medium	then SeekSpeedRate = medium
-if DirectionToHerd = far	then SeekSpeedRate = fast
+if DistanceToHerd = close	then SeekSpeedRate = slow
+if DistanceToHerd = medium	then SeekSpeedRate = medium
+if DistanceToHerd = far	then SeekSpeedRate = fast

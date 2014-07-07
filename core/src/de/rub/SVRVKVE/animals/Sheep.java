@@ -27,13 +27,13 @@ public class Sheep extends GameObject {
 	private Array<Sheep> herd;
 	private Dog dog;
 	private BitmapFont font;
-	private Random rand = new Random();
+	private Random rand;
 
 	Pixmap pixmapCircle;
 	Texture pixmapCircleTexture;
 
-	public static final int SIGHT_DISTANCE = 50;
-	public static final float MAX_MOVE_SPEED = 0.1f;
+	public static final int SIGHT_DISTANCE = 600;
+	public static final float MAX_MOVE_SPEED = 0.7f;
 	public static final float MAX_ROTATION_SPEED = 0.1f;
 
 	private Vector2 centerPosition;
@@ -43,18 +43,28 @@ public class Sheep extends GameObject {
 
 	// flee from dog
 	private Vector2 fleeDirection;
-	private float angleToDog;
 	private float fleeRotation;
 	private float fleeSpeed;
 
 	// seek herd
 	private Vector2 seekDirection;
-	private float angleToHerd;
-	private float seekRotation;
-	private float seekSpeed;
-
-	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height) {
+	private double seekRotation;
+	private double seekSpeed;
+	double period = 0;
+	double waitPeriod = 0;
+	private double angleToDog;
+	private double distanceToDog;
+	private Vector2 directionToDog;
+	private Array<GameObject> dogArray;
+	private double angleToHerd;
+	private double distanceFromHerd;
+	float actionTime;
+	
+	public Sheep(Array<Sheep> herd, Dog dog, int x, int y, int width, int height, int seed) {
 		super(image);
+		
+		rand = new Random((long) seed);
+		actionTime = rand.nextFloat() * 5;
 
 		this.setPosition(x, y);
 		this.setSize(width, height);
@@ -78,7 +88,13 @@ public class Sheep extends GameObject {
 
 		fleeDirection = new Vector2(1, 1);
 		seekDirection = new Vector2(-1, -1);
+		
+		dogArray = new Array<GameObject>();
+		dogArray.add(dog);
+
 	}
+	
+	
 
 	/**
 	 * Calculates sheeps behavior and draws it to the batch.
@@ -87,51 +103,41 @@ public class Sheep extends GameObject {
 	 *            SpriteBatch where the sheep should be drawn
 	 */
 	public void render(SpriteBatch batch, ShapeRenderer shapeRen) {
+		
+		getMovementTrigger();
+		
+		if (moveOn) setSheepToHerdAttitude();
+		setSheepToDogAttitude();
 
-		Array<GameObject> dogArray = new Array<GameObject>();
-		dogArray.add(dog);
-		Vector2 directionToDog = getDirectionToGObjects(dogArray);
-
-		// calculate dogs distance and angle
-		angleToDog = getAngleToTarget(currentVelocity, directionToDog);
-		double distanceToDog = getDistanceBetween(getCenterPosition(),
-				dog.getCenterPosition());
-
-		// calculate herds distance and angle
-		// TODO herd behavior
-		float angleToHerd = getDirectionToGroup(this,
-				sheepsAround(SIGHT_DISTANCE)).angle();
-		float distanceFromHerd = getDistanceToGroup(this,
-				sheepsAround(SIGHT_DISTANCE));
-		Catalog.set("DirectionToHerd", angleToHerd);
-		Catalog.set("DistanceToHerd", distanceFromHerd);
-
-		// set fuzzy inputs
-		Catalog.set("DirectionToDog", (double) angleToDog);
-		Catalog.set("DistanceToDog", (double) distanceToDog);
-
-		// calculate fuzzy
 		Catalog.evalAllRules();
 
-		// get fuzzy outputs
-		fleeRotation = (float) Catalog.get("FleeRotationRate");
-		fleeSpeed = (float) Catalog.get("FleeSpeedRate");
-		seekRotation = (float) Catalog.get("SeekRotationRate");
-		seekSpeed = (float) Catalog.get("SeekSpeedRate");
-
-		// caculate flee vector
-		fleeDirection.rotate(-fleeRotation * 2);
-		fleeDirection.nor().scl(1 + (float) fleeSpeed * 10);
-
-		seekDirection.rotate(-seekRotation * 2);
-		seekDirection.nor().scl(1 + (float) seekSpeed * 10);
-
+		if (moveOn) calculateSeekMovement();
+		calculateFleeMovement();
+		
 		// add flee vector to current velocity
-		currentVelocity.nor().add(fleeDirection.cpy().sub(fleeDirection.nor()))
-				.scl(MAX_MOVE_SPEED);
+		if (moveOn) currentVelocity.add(seekDirection.cpy().sub(seekDirection.nor()));
+		currentVelocity.add(fleeDirection.cpy().sub(fleeDirection.nor()));
+				
+		updatePosition();
 
-		currentVelocity.nor().add(seekDirection);
+		draw(batch);
+	}
+	
+	boolean moveOn=true;
+	private void getMovementTrigger() {
+		period+=Gdx.graphics.getDeltaTime();
+		
+		if(period>actionTime) {
+			moveOn=!moveOn;
+			period=0;
+			actionTime=rand.nextFloat() * 5;
+		}
+	}
 
+
+
+	private void updatePosition() {
+		currentVelocity.scl(MAX_MOVE_SPEED);
 		setRotation(currentVelocity.angle() - 90);
 		centerPosition = getCenterPosition();
 		centerPosition.add(currentVelocity);
@@ -147,23 +153,54 @@ public class Sheep extends GameObject {
 			setY(HerdSimulation.WINDOW_Y - getHeight() / 2);
 		if (getCenterPosition().y <= 0)
 			setY(0 - getHeight() / 2);
-
-		// addSteering(rotation);
-		// rotate(rotation);
-		// }
-
-		draw(batch);
-		// drawProperties(batch, shapeRen);
-		// playSound();
 	}
 
+
+
+	private void calculateSeekMovement() {
+		seekRotation = (float) Catalog.get("SeekRotationRate");
+		seekSpeed = (float) Catalog.get("SeekSpeedRate");
+		seekDirection.rotate((float) -seekRotation);
+		seekDirection.nor().scl(1 + (float) seekSpeed);
+	}
+
+	private void calculateFleeMovement() {
+		fleeRotation = (float) Catalog.get("FleeRotationRate");
+		fleeSpeed = (float) Catalog.get("FleeSpeedRate");
+		fleeDirection.rotate(-fleeRotation*3);
+		fleeDirection.nor().scl(1 + (float) fleeSpeed * 2);
+	}
+
+	private void setSheepToDogAttitude() {
+		directionToDog = getDirectionToGObjects(dogArray);
+		
+		angleToDog = getAngleToTarget(currentVelocity, directionToDog);
+		distanceToDog = getDistanceBetween(getCenterPosition(),
+				dog.getCenterPosition());
+		Catalog.set("DirectionToDog", angleToDog);
+		Catalog.set("DistanceToDog", distanceToDog);
+	}
+
+	private void setSheepToHerdAttitude() {
+		angleToHerd = getAngleToTarget(currentVelocity, getDirectionToGroup(this,
+				sheepsAround(SIGHT_DISTANCE)));
+		distanceFromHerd = getDistanceToGroup(this,
+				sheepsAround(SIGHT_DISTANCE));
+		Catalog.set("DirectionToHerd", angleToHerd);
+		Catalog.set("DistanceToHerd", distanceFromHerd);
+	}
+	
+	
+	
+	
+
 	private float getDistanceToGroup(GameObject subject, Array<GameObject> group) {
-		float distance = 0;
+		float distance = HerdSimulation.WINDOW_X;
 		for (GameObject gameObject : group) {
-			distance += gameObject.getCenterPosition()
-					.sub(subject.getCenterPosition()).len();
+			distance = Math.min(distance, gameObject.getCenterPosition()
+					.sub(subject.getCenterPosition()).len());
 		}
-		distance /= group.size;
+//		distance /= (group.size);
 		return distance;
 	}
 
